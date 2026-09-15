@@ -20,6 +20,10 @@ const navigationItems = [
     href: "#experience",
   },
   {
+    label: "Clients",
+    href: "#clients",
+  },
+  {
     label: "Work",
     href: "#work",
   },
