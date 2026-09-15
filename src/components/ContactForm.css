@@ -1,0 +1,440 @@
+/* =========================================
+   CONTACT OVERLAY
+   ========================================= */
+
+   /* =========================================
+   CONTACT OVERLAY
+   ========================================= */
+
+.contact-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    padding: 20px;
+  
+    background: rgba(0, 0, 0, 0.82);
+  
+    overflow-y: auto;
+  }
+  
+  
+  /* =========================================
+     CONTACT MODAL
+     ========================================= */
+  
+  .contact-modal {
+    position: relative;
+  
+    width: min(480px, 100%);
+    max-height: calc(100svh - 48px);
+  
+    padding: 30px 32px;
+  
+    background: var(--background);
+    border: 1px solid var(--line);
+  
+    overflow-y: auto;
+  }
+  
+  
+  /* =========================================
+     CLOSE BUTTON
+     ========================================= */
+  
+  .contact-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+  
+    width: 36px;
+    height: 36px;
+  
+    display: grid;
+    place-items: center;
+  
+    border: 1px solid var(--line);
+  
+    background: transparent;
+    color: var(--foreground);
+  
+    font-size: 24px;
+    line-height: 1;
+  
+    cursor: pointer;
+  
+    transition:
+      background 160ms ease,
+      color 160ms ease,
+      border-color 160ms ease;
+  }
+  
+  .contact-close:hover {
+    background: var(--accent);
+    color: var(--background);
+    border-color: var(--accent);
+  }
+  
+  
+  /* =========================================
+     HEADER
+     ========================================= */
+  
+  .contact-header {
+    max-width: 420px;
+  
+    margin-bottom: 24px;
+    padding-right: 38px;
+  }
+  
+  .contact-eyebrow {
+    margin: 0 0 12px;
+  
+    color: var(--accent);
+  
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+  
+  .contact-header h2,
+  .contact-success h2 {
+    margin: 0 0 14px;
+  
+    color: var(--foreground);
+  
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+  }
+  
+  .contact-header > p:last-child,
+  .contact-success > p:not(.contact-eyebrow) {
+    margin: 0;
+  
+    max-width: 420px;
+  
+    color: var(--muted);
+  
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  
+  /* =========================================
+     FORM
+     ========================================= */
+  
+  .contact-form {
+    display: grid;
+    gap: 17px;
+  }
+  
+  .contact-field {
+    display: grid;
+    gap: 6px;
+  }
+  
+  .contact-field label {
+    color: var(--foreground);
+  
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  
+    text-transform: uppercase;
+  }
+  
+  .contact-field input,
+  .contact-field textarea {
+    width: 100%;
+  
+    padding: 10px 0;
+  
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  
+    background: transparent;
+    color: var(--foreground);
+  
+    font: inherit;
+    font-size: 15px;
+  
+    outline: none;
+    border-radius: 0;
+  
+    transition: border-color 160ms ease;
+  }
+  
+  .contact-field textarea {
+    min-height: 90px;
+  
+    resize: vertical;
+  }
+  
+  .contact-field input::placeholder,
+  .contact-field textarea::placeholder {
+    color: #666;
+  }
+  
+  .contact-field input:focus,
+  .contact-field textarea:focus {
+    border-color: var(--accent);
+  }
+  
+  
+  /* =========================================
+     SUBMIT BUTTON
+     ========================================= */
+  
+  .contact-submit {
+    width: 100%;
+  
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    margin-top: 3px;
+    padding: 14px 17px;
+  
+    border: 1px solid var(--accent);
+  
+    background: var(--accent);
+    color: var(--background);
+  
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  
+    cursor: pointer;
+  
+    transition:
+      background 160ms ease,
+      color 160ms ease;
+  }
+  
+  .contact-submit span {
+    font-size: 18px;
+  }
+  
+  .contact-submit:hover {
+    background: transparent;
+    color: var(--accent);
+  }
+  
+  .contact-submit:disabled {
+    opacity: 0.6;
+  
+    cursor: wait;
+  }
+  
+  
+  /* =========================================
+     ERROR
+     ========================================= */
+  
+  .contact-error {
+    margin: 0;
+  
+    color: var(--accent);
+  
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  
+  
+  /* =========================================
+     HONEYPOT
+     ========================================= */
+  
+  .contact-honeypot {
+    position: absolute !important;
+  
+    width: 1px !important;
+    height: 1px !important;
+  
+    padding: 0 !important;
+  
+    opacity: 0 !important;
+  
+    pointer-events: none;
+  }
+  
+  
+  /* =========================================
+     SUCCESS
+     ========================================= */
+  
+  .contact-success {
+    padding: 24px 0 8px;
+  }
+  
+  .contact-success .contact-submit {
+    margin-top: 28px;
+  }
+  
+  
+  /* =========================================
+     MOBILE
+     ========================================= */
+  
+  @media (max-width: 700px) {
+    .contact-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        overflow-y: auto;
+      }
+  
+    .contact-modal {
+      width: 100%;
+      max-width: none;
+  
+      max-height: calc(100svh - 24px);
+  
+      padding: 32px 22px 24px;
+  
+      overflow-y: auto;
+  
+      -webkit-overflow-scrolling: touch;
+    }
+  
+    .contact-close {
+      top: 11px;
+      right: 11px;
+  
+      width: 36px;
+      height: 36px;
+  
+      font-size: 24px;
+    }
+  
+    .contact-header {
+      margin-bottom: 26px;
+  
+      padding-right: 40px;
+    }
+  
+    .contact-eyebrow {
+      margin-bottom: 11px;
+    }
+  
+    .contact-header h2,
+    .contact-success h2 {
+      font-size: clamp(36px, 12vw, 52px);
+  
+      line-height: 0.94;
+    }
+  
+    .contact-header > p:last-child,
+    .contact-success > p:not(.contact-eyebrow) {
+      font-size: 14px;
+  
+      line-height: 1.6;
+    }
+  
+    .contact-form {
+      gap: 18px;
+    }
+  
+    .contact-field input,
+    .contact-field textarea {
+      font-size: 16px;
+    }
+  
+    .contact-field textarea {
+      min-height: 90px;
+    }
+  
+    .contact-submit {
+      padding: 16px 18px;
+    }
+  }
+  
+  
+  /* =========================================
+     SMALL PHONES
+     ========================================= */
+  
+     @media (max-width: 380px) {
+        .contact-overlay {
+          padding: 16px;
+        }
+  
+    .contact-modal {
+      max-height: calc(100svh - 16px);
+  
+      padding: 30px 18px 20px;
+    }
+  
+    .contact-header {
+      margin-bottom: 22px;
+    }
+  
+    .contact-header h2,
+    .contact-success h2 {
+      font-size: 34px;
+    }
+  
+    .contact-form {
+      gap: 16px;
+    }
+  }
+  
+  
+  /* =========================================
+     SHORT MOBILE SCREENS
+     ========================================= */
+  
+  @media (max-height: 650px) and (max-width: 700px) {
+    .contact-overlay {
+      align-items: flex-start;
+    }
+  
+    .contact-modal {
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+  
+    .contact-header {
+      margin-bottom: 18px;
+    }
+  
+    .contact-form {
+      gap: 14px;
+    }
+  }
+  
+  
+  /* =========================================
+     ACCESSIBILITY
+     ========================================= */
+  
+  .contact-close:focus-visible,
+  .contact-submit:focus-visible,
+  .contact-field input:focus-visible,
+  .contact-field textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  
+  
+  /* =========================================
+     REDUCED MOTION
+     ========================================= */
+  
+  @media (prefers-reduced-motion: reduce) {
+    .contact-close,
+    .contact-field input,
+    .contact-field textarea,
+    .contact-submit {
+      transition: none;
+    }
+  }
