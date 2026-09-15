@@ -1,78 +1,103 @@
 export default function Clients() {
-    return (
-      <section id="clients" className="content-section clients-section">
-        <div className="section-container">
-          <div className="section-intro">
-            <p className="section-eyebrow">04 · CLIENTS</p>
-  
-            <h2>
-              WORKING
+  return (
+    <section id="clients" className="content-section clients-section">
+      <div className="section-container">
+        <div className="section-intro">
+          <p className="section-eyebrow">04 · CLIENTS</p>
+
+          <h2>
+            WORKING
+            <br />
+            ACROSS BORDERS.
+          </h2>
+        </div>
+
+        <div className="clients-metrics">
+          <div className="client-metric">
+            <p className="client-metric-number">48+</p>
+
+            <p className="client-metric-label">
+              DOMESTIC
               <br />
-              ACROSS BORDERS.
-            </h2>
+              CLIENTS
+            </p>
           </div>
-  
-          <div className="clients-content">
-            <div className="clients-summary">
-              <p className="clients-number">50+</p>
-  
-              <p className="clients-label">
-                PROJECTS &amp; SOLUTIONS
-              </p>
-            </div>
-  
-            <div className="clients-description">
-              <p>
-                I&apos;ve worked with businesses across different
-                industries and regions, helping teams improve
-                processes, build systems, connect applications,
-                and turn requirements into usable software.
-              </p>
-  
-              <p>
-                My work has included both domestic and
-                international clients, including projects
-                involving teams outside India.
-              </p>
-            </div>
+
+          <div className="client-metric">
+            <p className="client-metric-number">7+</p>
+
+            <p className="client-metric-label">
+              INTERNATIONAL
+              <br />
+              CLIENTS
+            </p>
           </div>
-  
-          <div className="client-regions">
-            <div className="client-region">
-              <span>01</span>
-  
-              <h3>INTERNATIONAL</h3>
-  
-              <p>
-                Solutions developed for international businesses
-                and distributed teams.
-              </p>
-            </div>
-  
-            <div className="client-region">
-              <span>02</span>
-  
-              <h3>DOMESTIC</h3>
-  
-              <p>
-                Systems and applications developed for businesses
-                operating within India.
-              </p>
-            </div>
-  
-            <div className="client-region">
-              <span>03</span>
-  
-              <h3>COLLABORATION</h3>
-  
-              <p>
-                Working directly with developers, founders,
-                executives, marketing teams, finance teams, and
-                end users.
-              </p>
-            </div>
+
+          <div className="client-metric">
+            <p className="client-metric-number">30+</p>
+
+            <p className="client-metric-label">
+              INDUSTRIES
+              <br />
+              WORKED WITH
+            </p>
           </div>
         </div>
-      </section>
-    );
-  }
+
+        <div className="clients-industries">
+          <div className="clients-industries-header">
+            <p className="section-eyebrow">INDUSTRIES</p>
+          </div>
+
+          <div className="experience-tags">
+            <span>Real Estate</span>
+            <span>Swimming &amp; Aquatic Services</span>
+            <span>Aged Care</span>
+            <span>Healthcare</span>
+            <span>Clinical Research</span>
+            <span>Dermatology</span>
+            <span>Outsourcing</span>
+            <span>Professional Services</span>
+            <span>Building Materials</span>
+            <span>Plumbing</span>
+            <span>Automotive</span>
+            <span>Waste Management</span>
+            <span>Cleaning Services</span>
+            <span>Digital Marketing</span>
+            <span>Food &amp; Beverage</span>
+            <span>Confectionery</span>
+            <span>Appliances</span>
+            <span>Refrigeration</span>
+            <span>Fashion &amp; Apparel</span>
+            <span>Wine &amp; Beverages</span>
+            <span>Organic Food</span>
+            <span>Payroll &amp; HR</span>
+            <span>Workplace Compliance</span>
+            <span>Telecommunications</span>
+            <span>Communications APIs</span>
+            <span>Financial Services</span>
+            <span>Education</span>
+            <span>Biomedical Engineering</span>
+            <span>Medical Services</span>
+            <span>Steel &amp; Industrial Materials</span>
+            <span>Accounting</span>
+            <span>Marketing</span>
+            <span>Forex &amp; Financial Markets</span>
+            <span>Hair Restoration</span>
+            <span>Aesthetic Medicine</span>
+            <span>Facilities Services</span>
+            <span>Home Services</span>
+            <span>Spices &amp; Food Products</span>
+            <span>Industrial Coatings</span>
+            <span>Safety Products</span>
+            <span>Laundry Equipment</span>
+            <span>Overseas Education</span>
+            <span>Photography &amp; Videography</span>
+            <span>Cybersecurity</span>
+            <span>Risk Technology</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
