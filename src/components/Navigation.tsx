@@ -27,10 +27,7 @@ const navigationItems = [
     label: "Work",
     href: "#work",
   },
-  {
-    label: "Projects",
-    href: "#projects",
-  },
+  { label: "Tools", href: "#tools" },
   {
     label: "Blog",
     href: "#blog",
@@ -176,7 +173,7 @@ export default function Navigation({
                 }
               >
                 <span>
-                  07
+                  {String(navigationItems.length + 1).padStart(2, "0")}
                 </span>
                 <strong>Ping Me
                 </strong>

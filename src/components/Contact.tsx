@@ -60,12 +60,12 @@ export default function Contact() {
 
               <a
                 className="contact-link"
-                href="https://github.com/"
+                href="https://www.instagram.com/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <span>INSTAGRAM</span>
-                <strong>Checkout my Contents</strong>
+                <strong>Visit Instagram</strong>
                 <span aria-hidden="true">↗</span>
               </a>
             </div>

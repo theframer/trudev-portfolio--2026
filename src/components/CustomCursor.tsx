@@ -9,9 +9,11 @@ export default function CustomCursor() {
   });
 
   const [isHovering, setIsHovering] = useState(false);
+  const [hasMoved, setHasMoved] = useState(false);
 
   useEffect(() => {
     function handleMouseMove(event: MouseEvent) {
+      setHasMoved(true);
       setPosition({
         x: event.clientX,
         y: event.clientY,
@@ -34,6 +36,8 @@ export default function CustomCursor() {
   return (
     <div
       className={`custom-cursor ${
+        hasMoved ? "custom-cursor-visible" : ""
+      } ${
         isHovering ? "custom-cursor-hover" : ""
       }`}
       style={{

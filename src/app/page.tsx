@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 import ContactForm from "@/components/ContactForm";
 import CustomCursor from "@/components/CustomCursor";
@@ -12,7 +13,7 @@ import Achievements from "@/components/Achievements";
 import Clients from "@/components/Clients";
 import Experience from "@/components/Experience";
 import Work from "@/components/Work";
-import Projects from "@/components/Projects";
+import Tools from "@/components/Tools";
 import Testimonials from "@/components/Testimonials";
 import Education from "@/components/Education";
 import Blog from "@/components/Blog";
@@ -44,16 +45,6 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setShowContact(true);
-    }, 5000);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, []);
-
   function handlePageNavigation() {
     window.scrollTo({
       top: isAtBottom ? 0 : document.documentElement.scrollHeight,
@@ -77,7 +68,7 @@ export default function Home() {
         <Clients />
         <Experience />
         <Work />
-        <Projects />
+        <Tools />
         <Testimonials />
         <Education />
         <Blog />
@@ -94,21 +85,14 @@ export default function Home() {
   aria-label="Open secret code"
   title="Secret"
 >
-  <img
-    src={secretKey.src}
+  <Image
+    src={secretKey}
+    width={21}
+    height={21}
     alt=""
     aria-hidden="true"
   />
 </button>
-
-      <button
-        type="button"
-        className="top-button"
-        onClick={handlePageNavigation}
-        aria-label={isAtBottom ? "Back to top" : "Go to bottom"}
-      >
-        {isAtBottom ? "↑" : "↓"}
-      </button>
 
       <button
         type="button"

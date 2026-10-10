@@ -17,7 +17,7 @@ export default function Footer() {
             <a href="#skills">Skills</a>
             <a href="#experience">Experience</a>
             <a href="#work">Work</a>
-            <a href="#projects">Projects</a>
+            <a href="#tools">Tools</a>
             <a href="#blog">Blog</a>
             <a href="#contact">Contact</a>
           </div>

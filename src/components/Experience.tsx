@@ -26,7 +26,7 @@ export default function Experience() {
               <p className="experience-role">SEP 2021 - APR 2022 (8mos)</p>
 
               <p>
-                Got the opportunity to work with on of the top MNC's
+                Got the opportunity to work with on of the top MNC&apos;s
                 in India. A large technology organization and team
                 collaboration.
               </p>

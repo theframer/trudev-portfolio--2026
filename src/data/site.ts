@@ -40,11 +40,6 @@ export const achievements = [
   ["04", "Builder Beyond One Stack", "Work spanning Zoho, web applications, APIs, automation, data, integrations, and business processes."]
 ] as const;
 
-export const personalProjects = [
-  ["Web Application", "Any Video Downloader", "A personal application exploring practical software delivery, interfaces, and media-related workflows."],
-  ["Developer Project", "TRUDEV Experiments", "A collection of technical experiments, tools, interfaces, and ideas built to learn by shipping."]
-] as const;
-
 export const testimonials = [
   ["Testimonials will be added from people who have directly worked with me.", "Coming soon", "Client / colleague"]
 ] as const;

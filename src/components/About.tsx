@@ -39,7 +39,7 @@ export default function About() {
 </p>
 
 <p>
-  Recently i heard about this on a neuroscience podcast, <i>"There is no such thing called multi-tasking human."</i>
+  Recently i heard about this on a neuroscience podcast, <i>&ldquo;There is no such thing called multi-tasking human.&rdquo;</i>
   <strong>One thing at a time.</strong> It makes sense, So there i am focusing deeply on one problem, solve it properly, and move to the next.
 </p>
 

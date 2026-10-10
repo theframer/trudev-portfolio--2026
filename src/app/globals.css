@@ -49,7 +49,7 @@ html {
     max-width: 100%;
     margin: 0;
   
-    overflow-x: hidden;
+    overflow-x: clip;
   
     background: var(--background);
     color: var(--foreground);
@@ -66,7 +66,7 @@ html {
     width: 100%;
     max-width: 100%;
   
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   
   a {
@@ -112,6 +112,7 @@ select {
 
   pointer-events: none;
   z-index: 999999999;
+  opacity: 0;
 
   transform: translate(-50%, -50%);
 
@@ -119,7 +120,12 @@ select {
 
   transition:
     width 180ms ease,
-    height 180ms ease;
+    height 180ms ease,
+    opacity 100ms ease;
+}
+
+.custom-cursor-visible {
+  opacity: 1;
 }
 
 .custom-cursor-hover {
@@ -214,7 +220,7 @@ select {
   
   
   /* =========================================================
-     NAVIGATION — DESKTOP
+     NAVIGATION DESKTOP
      ========================================================= */
   
   .site-header {
@@ -1289,92 +1295,105 @@ select {
   
   
   /* =========================================================
-     PROJECTS
+     TOOLS
      ========================================================= */
-  
-  .projects-grid {
+
+  .tools-description {
+    max-width: 580px;
+    margin: 0 0 38px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .tools-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     border-top: 1px solid var(--line);
     border-left: 1px solid var(--line);
   }
-  
-  .project-card {
-    min-height: 430px;
-  
-    padding: 30px;
-  
-    border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  
-    display: flex;
-    flex-direction: column;
-  
-    transition: background-color 180ms ease;
-  }
-  
-  .project-card:hover {
-    background: #0d0d0d;
-  }
-  
-  .project-card-top {
+
+  .tool-card-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-  
     margin-bottom: auto;
-  
     color: var(--accent);
-  
     font-size: 11px;
     font-weight: 700;
   }
-  
-  .project-status {
+
+  .tool-status {
     color: var(--muted);
-  
     font-size: 10px;
-  
     letter-spacing: 0.08em;
   }
-  
-  .project-card h3 {
-    margin: 50px 0 18px;
-  
-    font-size: 30px;
-  
+
+  .tool-card {
+    min-width: 0;
+    min-height: 330px;
+    padding: 28px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    transition: background-color 180ms ease;
+  }
+
+  .tool-card:hover {
+    background: #0d0d0d;
+  }
+
+  .tool-card h3 {
+    margin: auto 0 16px;
+    overflow-wrap: anywhere;
+    font-size: clamp(23px, 2.5vw, 32px);
     letter-spacing: -0.04em;
   }
-  
-  .project-card p {
-    margin: 0 0 28px;
-  
+
+  .tool-card p {
+    margin: 0 0 24px;
     color: var(--muted);
-  
     font-size: 14px;
     line-height: 1.6;
   }
-  
-  .project-card a {
+
+  .tool-card a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-  
     min-height: 44px;
-  
-    padding-top: 18px;
-  
+    padding-top: 16px;
     border-top: 1px solid var(--line);
-  
     font-size: 12px;
     font-weight: 700;
   }
-  
-  .project-card a span {
+
+  .tool-card a span {
     color: var(--accent);
-  
     font-size: 18px;
+  }
+
+  .tools-empty-state {
+    min-height: 150px;
+    padding: 24px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .tools-empty-index {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .tools-empty-state p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
   }
   
   
@@ -1887,16 +1906,8 @@ select {
       gap: 60px;
     }
   
-    .projects-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  
-    .project-card:nth-child(even) {
-      border-right: 0;
-    }
-  
-    .project-card:nth-child(3) {
-      grid-column: span 2;
+    .tools-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   
     .hero-mark {
@@ -2673,51 +2684,20 @@ select {
     }
   
   
-    /* -------------------------------------------------------
-       PROJECTS
-       ------------------------------------------------------- */
-  
-    .projects-grid {
-      display: block;
-  
-      border-left: 1px solid var(--line);
+    .tools-grid {
+      grid-template-columns: minmax(0, 1fr);
     }
-  
-    .project-card,
-    .project-card:nth-child(3) {
-      width: 100%;
-      min-height: 330px;
-  
+
+    .tool-card {
+      min-height: 290px;
       padding: 24px;
-  
       border-right: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
     }
-  
-    .project-card:last-child {
-      border-bottom: 0;
+
+    .tools-empty-state {
+      min-height: 120px;
+      gap: 16px;
     }
-  
-    .project-card h3 {
-      margin: 40px 0 14px;
-  
-      font-size: 27px;
-      line-height: 1;
-    }
-  
-    .project-card p {
-      margin-bottom: 22px;
-  
-      font-size: 13px;
-      line-height: 1.6;
-    }
-  
-    .project-card a {
-      min-height: 44px;
-  
-      font-size: 11px;
-    }
-  
   
     /* -------------------------------------------------------
        TESTIMONIALS
@@ -3091,12 +3071,6 @@ select {
       font-size: 29px;
     }
   
-    .project-card {
-      min-height: 310px;
-  
-      padding: 22px;
-    }
-  
     .contact-link {
       grid-template-columns: 58px minmax(0, 1fr) 18px;
     }
@@ -3168,10 +3142,6 @@ select {
       gap: 7px;
     }
   
-    .project-card {
-      padding: 20px;
-    }
-  
     .contact-link {
       grid-template-columns: 52px minmax(0, 1fr) 16px;
   
@@ -3238,7 +3208,6 @@ select {
   
     .navigation-links a,
     .hero-link,
-    .project-card a,
     .contact-link,
     .footer-navigation a,
     .footer-bottom a {
@@ -3251,10 +3220,6 @@ select {
   
     .hero-link {
       min-height: 48px;
-    }
-  
-    .project-card a {
-      min-height: 44px;
     }
   
     .contact-link {
@@ -3270,10 +3235,6 @@ select {
   
     .work-item:hover .work-arrow {
       transform: none;
-    }
-  
-    .project-card:hover {
-      background: transparent;
     }
   
     .contact-link:hover {
@@ -3317,3 +3278,107 @@ select {
       transition-duration: 0.01ms !important;
     }
   }
+/* Responsive refinements for tablet widths and touch-first phones. */
+@media (min-width: 701px) and (max-width: 1000px) {
+  .navigation-links {
+    gap: 12px;
+  }
+
+  .navigation-links a {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .navigation-links button {
+    padding: 8px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 700px) {
+  .section-intro h2,
+  .section-intro h3 {
+    font-size: clamp(40px, 12vw, 50px);
+    line-height: 0.92;
+    overflow-wrap: anywhere;
+  }
+
+  .hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .mobile-navigation {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .mobile-navigation-inner {
+    min-height: 100%;
+    height: auto;
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* The decorative block conflicts with the fixed mobile controls at this size. */
+  .hero-mark {
+    display: none;
+  }
+
+  .section-container,
+  .hero-content,
+  .about-content,
+  .experience-main,
+  .testimonial-content,
+  .education-details,
+  .personal-content,
+  .contact-content {
+    min-width: 0;
+  }
+
+  .secret-button,
+  .secret-panel-wrapper,
+  .top-button {
+    right: max(16px, env(safe-area-inset-right));
+  }
+
+  .top-button {
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .secret-button {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 62px);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  html,
+  body,
+  a,
+  button,
+  input,
+  textarea,
+  select {
+    cursor: auto;
+  }
+
+  .custom-cursor {
+    display: none;
+  }
+
+  .mobile-navigation-links a,
+  .mobile-navigation-links button {
+    cursor: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .contact-field input,
+  .contact-field textarea,
+  .secret-form input {
+    font-size: 16px;
+  }
+}

@@ -24,9 +24,9 @@ export default function Education() {
               Yep! you heard that right. Thought this is it, its simple as that.
               Later i went straight and took <strong>computer science</strong>  not because i got
               a clear vision but just because i had confidence (over) that i am
-              good with "computer".
-              <br /> Long story short, 11th and 12th grade taught me new math.<strong><i>"1
-              + 1 = 10", OKAYYYY!</i> </strong>
+              good with &quot;computer&quot;.
+              <br /> Long story short, 11th and 12th grade taught me new math.<strong><i>&quot;1
+              + 1 = 10&quot;, OKAYYYY!</i> </strong>
             </p>
 
             <p>

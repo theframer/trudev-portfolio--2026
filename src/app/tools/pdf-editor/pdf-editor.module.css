@@ -1,0 +1,198 @@
+.page {
+  min-height: 100vh;
+  padding: 28px max(22px, calc((100vw - 1320px) / 2)) 32px;
+  color: #f3f1eb;
+  background: #080808;
+}
+
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.backLink { display: inline-flex; align-items: center; min-height: 46px; padding: 0 16px; border: 1px solid #343434; color: #f3f1eb; background: #0d0d0d; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-decoration: none; transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease; }
+.backLink:hover { border-color: #ff4a3e; color: #080808; background: #ff4a3e; }
+.backLink:focus-visible, .primaryButton:focus-visible, .modeButtons button:focus-visible, .pageStepper button:focus-visible { outline: 2px solid #ff4a3e; outline-offset: 3px; }
+.privacyTag { display: flex; align-items: center; gap: 8px; color: #aaa69e; font-size: 9px; font-weight: 700; letter-spacing: .13em; }
+.privacyTag > span { width: 7px; height: 7px; border-radius: 50%; background: #ff4a3e; box-shadow: 0 0 12px #ff4a3e88; }
+.heading { max-width: 800px; padding: 64px 0 42px; }
+.eyebrow, .uploadIndex, .panelIndex, .fileHint { margin: 0; color: #ff4a3e; font-size: 9px; font-weight: 700; letter-spacing: .17em; }
+.heading h1 { margin: 20px 0 16px; font-size: clamp(52px, 10vw, 104px); line-height: .82; letter-spacing: -.085em; }
+.heading > p:last-child { max-width: 480px; margin: 0; color: #aaa69e; font-size: 14px; line-height: 1.7; }
+
+.uploadPanel { position: relative; display: flex; min-height: 360px; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(26px, 6vw, 64px); border: 1px solid #303030; background: #0d0d0d; overflow: hidden; }
+.uploadPanel::after { position: absolute; right: -72px; bottom: -120px; width: 260px; height: 260px; border: 1px solid #252525; content: ""; transform: rotate(45deg); pointer-events: none; }
+.uploadIndex { position: absolute; top: 24px; left: clamp(26px, 6vw, 64px); color: #8d8983; }
+.uploadMark { position: relative; margin: 20px 0 18px; padding: 18px 20px; border: 1px solid #393939; color: #f1efe9; font-size: 18px; font-weight: 800; letter-spacing: -.06em; }
+.uploadMark span { position: absolute; top: -8px; right: -9px; display: grid; width: 20px; height: 20px; place-items: center; color: #080808; background: #ff4a3e; font-size: 14px; }
+.uploadPanel h2, .toolPanel h2 { margin: 0; font-size: clamp(23px, 4vw, 34px); letter-spacing: -.06em; }
+.uploadPanel > p { max-width: 460px; margin: 10px 0 22px; color: #aaa69e; font-size: 13px; line-height: 1.6; }
+.primaryButton { display: flex; min-height: 50px; align-items: center; justify-content: space-between; gap: 24px; padding: 0 16px; border: 1px solid #ff4439; color: #080808; background: #ff4439; font: inherit; font-size: 12px; font-weight: 800; text-align: left; cursor: pointer; transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease; }
+.primaryButton:hover:not(:disabled) { border-color: #f3f1eb; color: #f3f1eb; background: #080808; }
+.primaryButton span { font-size: 18px; }
+.primaryButton:disabled { opacity: .5; cursor: wait; }
+.fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.fileHint { margin-top: 13px; color: #77736d; font-size: 8px; }
+.error { margin: 16px 0 0; color: #ff786f; font-size: 12px; line-height: 1.5; }
+
+.editorShell { border: 1px solid #2f2f2f; background: #0c0c0c; }
+.documentBar { display: flex; min-height: 76px; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #292929; }
+.fileInfo { display: flex; min-width: 0; align-items: center; gap: 12px; }
+.fileIcon { display: grid; width: 38px; height: 42px; flex: 0 0 auto; place-items: center; border: 1px solid #4d2b29; color: #ff5b50; font-size: 9px; font-weight: 800; }
+.fileInfo > div { display: grid; min-width: 0; gap: 5px; }
+.fileInfo strong { max-width: 56vw; overflow: hidden; color: #f3f1eb; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.fileInfo > div > span { color: #8f8b84; font-size: 10px; }
+.fileNameRow, .fileNameEditor { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.fileNameRow strong { flex: 0 1 auto; }
+.renameFile, .fileNameEditor button { display: grid; width: 27px; height: 27px; flex: 0 0 auto; place-items: center; padding: 0; border: 1px solid #373737; color: #c5c1ba; background: #111; font: inherit; font-size: 15px; cursor: pointer; }
+.renameFile:hover, .fileNameEditor button:hover { border-color: #ff4a3e; color: #ff4a3e; }
+.fileNameEditor input { width: min(42vw, 280px); min-width: 90px; min-height: 32px; padding: 5px 7px; border: 1px solid #ff4a3e; color: #f3f1eb; background: #080808; font: inherit; font-size: 12px; }
+.fileNameEditor > span { flex: 0 0 auto; color: #99958e; font-size: 10px; }
+.changeFile { min-height: 40px; padding: 0 12px; border: 1px solid #363636; color: #d3d0c9; background: transparent; font: inherit; font-size: 10px; font-weight: 700; cursor: pointer; }
+.changeFile:hover { border-color: #ff4a3e; color: #ff4a3e; }
+.editorGrid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; align-items: start; }
+.documentColumn { min-width: 0; padding: 0 22px 22px; border-right: 1px solid #292929; }
+.pageControls { display: flex; min-height: 64px; align-items: center; justify-content: space-between; gap: 12px; }
+.pageStepper { display: flex; align-items: center; gap: 11px; }
+.pageStepper button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid #343434; color: #f3f1eb; background: #101010; font-size: 17px; cursor: pointer; }
+.pageStepper button:hover:not(:disabled) { border-color: #ff4a3e; color: #ff4a3e; }
+.pageStepper button:disabled { opacity: .35; cursor: default; }
+.pageStepper > span { color: #79756f; font-size: 11px; }
+.pageStepper strong { color: #f3f1eb; font-size: 13px; }
+.modeHint { color: #918d86; font-size: 8px; font-weight: 700; letter-spacing: .11em; text-align: right; }
+.stageWrap { display: flex; justify-content: center; min-width: 0; padding: 14px; background: #171717; }
+.pageStage { position: relative; width: 100%; max-width: 860px; align-self: flex-start; overflow: hidden; background: white; touch-action: pan-y; }
+.pdfCanvas { display: block; max-width: 100%; height: auto; }
+.editLayer { position: absolute; inset: 0; overflow: hidden; }
+.sourceText { position: absolute; z-index: 1; display: block; min-width: 3px; min-height: 3px; overflow: hidden; padding: 0; border: 0; color: transparent; background: transparent; text-align: left; white-space: pre; cursor: text; touch-action: manipulation; }
+.sourceText:hover, .sourceText:focus-visible { outline: 1px solid #ff4a3e; outline-offset: 0; }
+.sourceText.sourceTextSelected { outline: 1px solid #ff4a3e; outline-offset: 1px; box-shadow: 0 0 0 2px #ff4a3e33; }
+.replacementPatch { position: absolute; z-index: 2; background: #fff; pointer-events: none; }
+.inlineTextEditor { position: absolute; z-index: 6; display: block; min-width: 28px; margin: 0; padding: 0 2px; border: 1px solid #ff4439; border-radius: 0; color: #171717; background: #fff; font: inherit; line-height: 1.05; white-space: pre; overflow: hidden; resize: none; outline: 2px solid #ff443933; outline-offset: 1px; touch-action: manipulation; user-select: text; }
+.inlineTextEditor:focus { outline: 2px solid #ff4439; outline-offset: 1px; }
+.inlineAddedTextEditor { min-height: 30px; padding: 4px 6px; border-style: dashed; background: #fffffffa; line-height: 1.2; white-space: pre-wrap; overflow-wrap: anywhere; cursor: grab; touch-action: none; }
+.inlineAddedTextEditor:active { cursor: grabbing; }
+.textEdit { position: absolute; z-index: 3; max-width: 95%; padding: 1px 2px; white-space: pre-wrap; line-height: 1.2; overflow-wrap: anywhere; cursor: grab; touch-action: none; user-select: none; }
+.textEdit:active { cursor: grabbing; }
+.replacementText { z-index: 4; }
+.textEdit.selectedEdit { outline: 1px dashed #ff4439; outline-offset: 2px; }
+.coverEdit, .coverPreview { position: absolute; z-index: 2; padding: 0; border: 0; background: white; cursor: pointer; }
+.coverEdit.selectedEdit { outline: 1px dashed #ff4439; outline-offset: 1px; }
+.coverPreview { z-index: 3; border: 1px dashed #ff4439; background: #ffffffd9; pointer-events: none; }
+.textMode { cursor: text; }
+.coverMode { cursor: crosshair; }
+.pageTip { margin: 12px 0 0; color: #807c75; font-size: 10px; line-height: 1.5; }
+
+.toolPanel { position: sticky; top: 16px; padding: 23px 20px 20px; }
+.panelIndex { color: #ff4a3e; font-size: 8px; }
+.toolPanel h2 { margin-top: 12px; font-size: 25px; }
+.modeButtons { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 19px 0; }
+.modeButtons button { display: flex; min-height: 68px; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 10px 8px; border: 1px solid #323232; color: #a9a59e; background: #101010; font: inherit; font-size: 9px; cursor: pointer; }
+.modeButtons button > span { color: #f3f1eb; font-size: 17px; font-weight: 700; }
+.modeButtons button:hover, .modeButtons button.activeMode { border-color: #ff4a3e; color: #f3f1eb; background: #18100f; }
+.modeButtons button.activeMode > span { color: #ff4a3e; }
+.historyButtons { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: -9px 0 15px; }
+.historyButtons button { min-height: 38px; border: 1px solid #343434; color: #e7e4dd; background: #111; font: inherit; font-size: 10px; font-weight: 700; cursor: pointer; }
+.historyButtons button:hover:not(:disabled) { border-color: #ff4a3e; color: #ff4a3e; }
+.historyButtons button:disabled { color: #66625c; opacity: .55; cursor: default; }
+.toolFields { display: grid; gap: 12px; }
+.toolFields label { display: grid; gap: 6px; color: #aaa69e; font-size: 10px; }
+.toolFields input:not([type="color"]), .toolFields textarea, .toolFields select { width: 100%; min-width: 0; min-height: 40px; padding: 9px 10px; border: 1px solid #343434; border-radius: 0; color: #f3f1eb; background: #080808; font: inherit; font-size: 12px; }
+.toolFields textarea { resize: vertical; line-height: 1.5; }
+.toolFields input:focus, .toolFields textarea:focus, .toolFields select:focus { outline: 1px solid #ff4a3e; outline-offset: 1px; }
+.toolFields input:disabled, .toolFields textarea:disabled, .toolFields select:disabled { color: #aaa69e; opacity: .72; cursor: not-allowed; }
+.fieldPair { display: grid; grid-template-columns: .65fr 1fr; gap: 10px; }
+.colorInput { display: flex; min-height: 40px; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid #343434; background: #080808; }
+.colorInput input { width: 28px; height: 27px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.colorInput > span { color: #dedbd4; font-size: 10px; }
+.toolHint { min-height: 47px; margin: 12px 0 0; color: #8d8982; font-size: 10px; line-height: 1.55; }
+.selectedActions { display: grid; gap: 10px; margin-top: 12px; }
+.nudgeControls { display: flex; align-items: center; gap: 4px; }
+.nudgeControls button { display: grid; width: 32px; height: 30px; place-items: center; border: 1px solid #363636; color: #eee; background: #111; font-size: 12px; cursor: pointer; }
+.nudgeControls button:hover { border-color: #ff4a3e; color: #ff4a3e; }
+.nudgeControls span { margin-left: auto; color: #88847d; font-size: 8px; }
+.removeEdit { display: flex; min-height: 38px; align-items: center; justify-content: space-between; padding: 0 10px; border: 1px solid #3c2a28; color: #ff8279; background: #140d0c; font: inherit; font-size: 10px; cursor: pointer; }
+.removeEdit span { font-size: 17px; }
+.exportArea { margin-top: 20px; padding: 16px; border: 1px solid #303030; background: #0c0c0c; }
+.exportArea > span { display: block; margin-bottom: 10px; color: #99958e; font-size: 8px; font-weight: 700; letter-spacing: .13em; }
+.exportArea .primaryButton { width: 100%; }
+.exportArea > p { margin: 9px 0 0; color: #77736d; font-size: 9px; line-height: 1.5; }
+.mobileToolbar, .mobileExport { display: none; }
+.desktopExport { display: block; }
+.mobileToolRow { display: flex; align-items: stretch; gap: 6px; }
+.mobileToolRow button { display: grid; min-width: 42px; min-height: 40px; flex: 1; place-items: center; border: 1px solid #343434; color: #e7e4dd; background: #111; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.mobileToolRow button:hover:not(:disabled), .mobileToolRow button.mobileToolActive { border-color: #ff4a3e; color: #ff4a3e; background: #18100f; }
+.mobileToolRow button:disabled { opacity: .42; cursor: default; }
+.mobileToolRow button.mobileRemove { flex: 0 0 38px; color: #ff8279; }
+.mobileRemoveAction { display: flex; width: 100%; min-height: 34px; align-items: center; justify-content: space-between; margin-top: 6px; padding: 0 9px; border: 1px solid #3c2a28; color: #ff8279; background: #140d0c; font: inherit; font-size: 10px; cursor: pointer; }
+.mobileRemoveAction span { font-size: 17px; }
+.mobileTextStyle { display: grid; grid-template-columns: minmax(110px, 1fr) 62px 48px; gap: 8px; margin-top: 9px; }
+.mobileTextStyle label { display: grid; min-width: 0; gap: 4px; color: #aaa69e; font-size: 9px; }
+.mobileTextStyle select, .mobileTextStyle input:not([type="color"]) { width: 100%; min-width: 0; min-height: 36px; padding: 5px 7px; border: 1px solid #343434; border-radius: 0; color: #f3f1eb; background: #080808; font: inherit; font-size: 11px; }
+.mobileTextStyle input[type="color"] { width: 100%; height: 36px; padding: 2px; border: 1px solid #343434; background: #080808; }
+.mobileTextStyle select:focus, .mobileTextStyle input:focus { outline: 1px solid #ff4a3e; outline-offset: 1px; }
+.mobileToolHint { margin: 8px 0 0; color: #8d8982; font-size: 9px; line-height: 1.4; }
+.editorShell > .error { margin: 0; padding: 0 20px 18px; }
+.footerNote { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; color: #68655f; font-size: 8px; font-weight: 700; letter-spacing: .13em; }
+
+@media (max-width: 900px) {
+  .editorGrid { grid-template-columns: minmax(0, 1fr); }
+  .documentColumn { border-right: 0; }
+  .toolPanel { display: none; }
+  .mobileToolbar { position: sticky; z-index: 8; top: 0; display: block; margin: 0 -22px 8px; padding: 9px 22px 10px; border-bottom: 1px solid #333; background: #0c0c0cf5; backdrop-filter: blur(12px); }
+  .mobileExport { display: block; }
+  .desktopExport { display: none; }
+  .toolHint { min-height: auto; }
+  .exportArea { margin-top: 14px; }
+}
+
+@media (max-width: 560px) {
+  .page { padding: 17px 14px 24px; }
+  .backLink { min-height: 42px; padding: 0 10px; font-size: 9px; }
+  .privacyTag { font-size: 7px; letter-spacing: .09em; }
+  .heading { padding: 51px 0 28px; }
+  .heading h1 { margin: 16px 0 13px; font-size: clamp(52px, 17vw, 80px); }
+  .heading > p:last-child { max-width: 380px; font-size: 12px; }
+  .uploadPanel { min-height: 330px; padding: 58px 22px 26px; }
+  .uploadIndex { top: 22px; left: 22px; }
+  .uploadPanel h2 { font-size: 25px; }
+  .uploadPanel > p { font-size: 12px; }
+  .documentBar { min-height: 65px; padding: 10px; gap: 8px; }
+  .fileIcon { width: 33px; height: 36px; }
+  .fileInfo { gap: 8px; }
+  .fileInfo strong { max-width: 48vw; font-size: 10px; }
+  .fileNameEditor input { width: min(38vw, 180px); min-width: 72px; font-size: 10px; }
+  .renameFile, .fileNameEditor button { width: 25px; height: 25px; }
+  .fileInfo > div > span { font-size: 9px; }
+  .changeFile { min-height: 36px; padding: 0 8px; font-size: 9px; }
+  .toolPanel { padding: 17px 12px; }
+  .toolPanel h2 { font-size: 22px; }
+  .modeButtons { margin: 14px 0; }
+  .modeButtons button { min-height: 60px; padding: 8px 6px; font-size: 8px; }
+  .modeButtons button > span { font-size: 15px; }
+  .toolFields { grid-template-columns: minmax(0, 1.15fr) minmax(100px, .85fr); gap: 9px; }
+  .fieldPair { grid-template-columns: .65fr 1fr; gap: 7px; }
+  .toolFields input:not([type="color"]), .toolFields textarea, .toolFields select { font-size: 11px; }
+  .colorInput { gap: 5px; padding: 4px; }
+  .colorInput > span { font-size: 8px; }
+  .documentColumn { padding: 0 8px 14px; }
+  .pageControls { min-height: 54px; }
+  .pageStepper { gap: 7px; }
+  .pageStepper button { width: 33px; height: 33px; }
+  .modeHint { max-width: 145px; font-size: 7px; line-height: 1.45; }
+  .stageWrap { padding: 6px; }
+  .pageTip { font-size: 9px; }
+  .exportArea { padding: 12px; }
+  .mobileToolbar { margin-right: -8px; margin-left: -8px; padding: 8px; }
+  .mobileToolRow { gap: 5px; }
+  .mobileToolRow button { min-width: 34px; min-height: 38px; font-size: 14px; }
+  .mobileTextStyle { grid-template-columns: minmax(90px, 1fr) 58px 44px; gap: 6px; }
+  .footerNote { font-size: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backLink, .primaryButton { transition: none; }
+}
+
+.objectTarget { position: absolute; padding: 0; border: 1px dashed #448dff88; background: #448dff08; cursor: grab; touch-action: none; }
+.objectTarget:hover, .objectTarget:focus-visible { border-color: #448dffff; background: #448dff1c; outline: 1px solid #448dff66; }
+.objectTarget:active { cursor: grabbing; }
+.objectMoved { border-color: #ff4a3eaa; background: #ff4a3e12; }
+.pageStage.panMode .editLayer { pointer-events: none; }
+.mobileToolRow button[aria-label="Move PDF elements"] { font-size: 23px; line-height: 1; }

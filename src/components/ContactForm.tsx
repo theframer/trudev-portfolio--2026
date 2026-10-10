@@ -82,7 +82,7 @@ export default function ContactForm({ onClose }: ContactFormProps) {
               </h2>
 
               <p>
-              got a question or just want to know about _____?
+              Have a question or want to discuss a project?
               </p>
             </div>
 

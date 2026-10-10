@@ -1,16 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://trudev.in"),
 
   title: {
-    default: "TRUDEV — Software Developer",
-    template: "%s — TRUDEV",
+    default: "TRUDEV Software Developer",
+    template: "%s : TRUDEV",
   },
 
   description:
-    "The personal website of Amal Dev Anilkumar — software developer building software, business systems, web applications, and digital products.",
+    "The personal website of Amal Dev Anilkumar, software developer building software, business systems, web applications, and digital products.",
 
   applicationName: "TRUDEV",
 
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "https://trudev.in",
-    title: "TRUDEV — Software Developer",
+    title: "Amal Dev Anilkumar",
     description:
       "Software, business systems, web applications, and digital products built around real problems.",
     siteName: "TRUDEV",
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "TRUDEV — Software Developer",
+    title: "TRUDEV",
     description:
       "Software, business systems, web applications, and digital products built around real problems.",
   },
@@ -55,6 +56,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   colorScheme: "dark",
   themeColor: "#080808",
 };
@@ -66,7 +68,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ServiceWorkerRegistration />
+        {children}
+      </body>
     </html>
   );
 }
