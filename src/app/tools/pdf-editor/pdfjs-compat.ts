@@ -21,4 +21,56 @@ if (typeof compatiblePromise.withResolvers !== "function") {
   };
 }
 
+const readableStreamPrototype = globalThis.ReadableStream?.prototype;
+const streamPrototype = readableStreamPrototype as (object & {
+  [Symbol.asyncIterator]?: (this: ReadableStream<unknown>) => AsyncIterableIterator<unknown>;
+}) | undefined;
+
+export const readableStreamAsyncIteratorPolyfilled = Boolean(
+  streamPrototype && typeof streamPrototype[Symbol.asyncIterator] !== "function",
+);
+
+if (readableStreamAsyncIteratorPolyfilled && streamPrototype) {
+  Object.defineProperty(streamPrototype, Symbol.asyncIterator, {
+    configurable: true,
+    writable: true,
+    value: function <T>(this: ReadableStream<T>): AsyncIterableIterator<T> {
+      const reader = this.getReader();
+      let finished = false;
+      const iterator: AsyncIterableIterator<T> = {
+        async next() {
+          if (finished) return { done: true, value: undefined };
+          try {
+            const result = await reader.read();
+            if (result.done) {
+              finished = true;
+              reader.releaseLock();
+            }
+            return result;
+          } catch (error) {
+            finished = true;
+            reader.releaseLock();
+            throw error;
+          }
+        },
+        async return() {
+          if (!finished) {
+            finished = true;
+            try {
+              await reader.cancel();
+            } finally {
+              reader.releaseLock();
+            }
+          }
+          return { done: true, value: undefined };
+        },
+        [Symbol.asyncIterator]() {
+          return this;
+        },
+      };
+      return iterator;
+    },
+  });
+}
+
 export {};

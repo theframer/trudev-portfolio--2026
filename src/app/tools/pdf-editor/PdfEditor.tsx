@@ -43,12 +43,17 @@ type PdfTextRun = {
 };
 
 type EditHistory = { past: PdfEdit[][]; present: PdfEdit[]; future: PdfEdit[][] };
-let pdfJsRuntimeInfo: { version: string; workerPath: string; basePath: string } | null = null;
+let pdfJsRuntimeInfo: {
+  version: string;
+  workerPath: string;
+  basePath: string;
+  readableStreamAsyncIteratorPolyfilled: boolean;
+} | null = null;
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
 async function loadPdfJs() {
-  await import("./pdfjs-compat");
+  const compatibility = await import("./pdfjs-compat");
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const nextScript = Array.from(document.scripts).find((script) =>
     new URL(script.src, window.location.href).pathname.includes("/_next/static/chunks/"),
@@ -59,7 +64,12 @@ async function loadPdfJs() {
   const workerBootstrapUrl = new URL(`${basePath}/pdfjs-worker-compat.mjs`, window.location.origin);
   workerBootstrapUrl.searchParams.set("src", `${basePath}/pdfjs-worker.mjs`);
   pdfjs.GlobalWorkerOptions.workerSrc = workerBootstrapUrl.toString();
-  pdfJsRuntimeInfo = { version: pdfjs.version, workerPath: workerBootstrapUrl.pathname, basePath };
+  pdfJsRuntimeInfo = {
+    version: pdfjs.version,
+    workerPath: workerBootstrapUrl.pathname,
+    basePath,
+    readableStreamAsyncIteratorPolyfilled: compatibility.readableStreamAsyncIteratorPolyfilled,
+  };
   return pdfjs;
 }
 
@@ -459,6 +469,11 @@ export default function PdfEditor() {
             devicePixelRatio: window.devicePixelRatio,
             capabilities: {
               promiseWithResolvers: typeof (Promise as PromiseConstructor & { withResolvers?: unknown }).withResolvers === "function",
+              readableStream: typeof ReadableStream === "function",
+              readableStreamGetReader: typeof ReadableStream === "function" && typeof ReadableStream.prototype.getReader === "function",
+              readableStreamAsyncIterator: typeof ReadableStream === "function"
+                && typeof (ReadableStream.prototype as ReadableStream & { [Symbol.asyncIterator]?: unknown })[Symbol.asyncIterator] === "function",
+              readableStreamAsyncIteratorPolyfilled: pdfJsRuntimeInfo?.readableStreamAsyncIteratorPolyfilled ?? false,
               arrayFindLast: typeof Array.prototype.findLast === "function",
               canvas2d: Boolean(context),
               canvasResetTransform: typeof context?.resetTransform === "function",
