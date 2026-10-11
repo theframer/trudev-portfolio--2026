@@ -124,6 +124,11 @@ export default function InvoiceGenerator() {
               <summary className={styles.sectionSummary}>
                 <span className={styles.sectionNumber}>01</span>
                 <span className={styles.sectionTitle}>Your business</span>
+                <span className={styles.sectionAction}>
+                  <span className={styles.expandLabel}>Expand to fill more details</span>
+                  <span className={styles.collapseLabel}>Collapse</span>
+                  <span className={styles.sectionArrow} aria-hidden="true" />
+                </span>
               </summary>
               <div className={styles.fieldGrid}>
                 <label className={styles.wideField}>Business or your name
@@ -135,10 +140,15 @@ export default function InvoiceGenerator() {
               </div>
             </details>
 
-            <details className={styles.formSection} open>
+            <details className={styles.formSection}>
               <summary className={styles.sectionSummary}>
                 <span className={styles.sectionNumber}>02</span>
                 <span className={styles.sectionTitle}>Invoice details</span>
+                <span className={styles.sectionAction}>
+                  <span className={styles.expandLabel}>Expand to fill more details</span>
+                  <span className={styles.collapseLabel}>Collapse</span>
+                  <span className={styles.sectionArrow} aria-hidden="true" />
+                </span>
               </summary>
               <div className={styles.fieldGrid}>
                 <label>Invoice number
@@ -161,10 +171,15 @@ export default function InvoiceGenerator() {
               </div>
             </details>
 
-            <details className={styles.formSection} open>
+            <details className={styles.formSection}>
               <summary className={styles.sectionSummary}>
                 <span className={styles.sectionNumber}>03</span>
                 <span className={styles.sectionTitle}>Items</span>
+                <span className={styles.sectionAction}>
+                  <span className={styles.expandLabel}>Expand to fill more details</span>
+                  <span className={styles.collapseLabel}>Collapse</span>
+                  <span className={styles.sectionArrow} aria-hidden="true" />
+                </span>
               </summary>
               <div className={styles.itemHeaders} aria-hidden="true">
                 <span>Description</span><span>Qty</span><span>Price</span><span />
@@ -185,10 +200,15 @@ export default function InvoiceGenerator() {
               <button type="button" className={styles.addButton} onClick={() => setItems((current) => [...current, { id: Math.max(0, ...current.map((item) => item.id)) + 1, description: "", quantity: "1", price: "" }])}>+ Add item</button>
             </details>
 
-            <details className={styles.formSection} open>
+            <details className={styles.formSection}>
               <summary className={styles.sectionSummary}>
                 <span className={styles.sectionNumber}>04</span>
                 <span className={styles.sectionTitle}>Notes</span>
+                <span className={styles.sectionAction}>
+                  <span className={styles.expandLabel}>Expand to fill more details</span>
+                  <span className={styles.collapseLabel}>Collapse</span>
+                  <span className={styles.sectionArrow} aria-hidden="true" />
+                </span>
               </summary>
               <label className={styles.wideField}>Payment details or a short note
                 <textarea rows={3} value={details.notes} onChange={(event) => updateDetails("notes", event.target.value)} placeholder="Optional details for your customer" />

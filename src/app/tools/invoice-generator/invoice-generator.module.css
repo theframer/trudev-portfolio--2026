@@ -61,8 +61,12 @@
 .formSection { padding: 0 23px 23px; border: 1px solid #292929; background: #0d0d0d; }
 .sectionSummary { display: flex; align-items: center; gap: 14px; min-height: 64px; margin: 0 -23px 20px; padding: 0 23px; cursor: pointer; list-style: none; }
 .sectionSummary::-webkit-details-marker { display: none; }
-.sectionSummary::after { content: "↑"; margin-left: auto; color: #ff4a3e; font-size: 18px; font-weight: 400; }
-.formSection[open] > .sectionSummary::after { content: "↓"; }
+.sectionAction { display: inline-flex; align-items: center; justify-content: flex-end; gap: 9px; margin-left: auto; color: #aaa69e; font-size: 10px; text-align: right; }
+.collapseLabel { display: none; }
+.sectionArrow { width: 9px; height: 9px; flex: 0 0 9px; border-right: 1.5px solid #ff4a3e; border-bottom: 1.5px solid #ff4a3e; transform: translateY(-2px) rotate(45deg); transition: transform 160ms ease; }
+.formSection[open] > .sectionSummary .expandLabel { display: none; }
+.formSection[open] > .sectionSummary .collapseLabel { display: inline; }
+.formSection[open] > .sectionSummary .sectionArrow { transform: translateY(2px) rotate(225deg); }
 .sectionSummary:focus-visible { outline: 2px solid #ff4a3e; outline-offset: -3px; }
 .sectionNumber { color: #ff4a3e; font-size: 11px; font-weight: 700; }
 .sectionTitle { font-size: 14px; font-weight: 700; }
@@ -131,6 +135,8 @@
   .heading { padding: 54px 0 30px; }
   .formSection { padding: 0 14px 18px; }
   .sectionSummary { min-height: 58px; margin-right: -14px; margin-left: -14px; padding-right: 14px; padding-left: 14px; }
+  .sectionSummary { gap: 9px; }
+  .sectionAction { max-width: 55%; gap: 7px; font-size: 9px; line-height: 1.3; }
   .fieldGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .itemHeaders,
   .itemRow { grid-template-columns: minmax(0, 1fr) 48px minmax(70px, .6fr) 22px; gap: 5px; }
