@@ -69,7 +69,7 @@ export function InvoicePdf({
   totals: Totals;
 }) {
   return (
-    <Document title={`Invoice ${details.invoiceNumber || "Draft"}`}>
+    <Document title={`Invoice${details.invoiceNumber.trim() ? ` ${details.invoiceNumber.trim()}` : ""}`}>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
@@ -81,7 +81,7 @@ export function InvoicePdf({
           </View>
           <View>
             <Text style={styles.invoiceTitle}>INVOICE</Text>
-            <Text style={styles.invoiceNumber}>{details.invoiceNumber || "DRAFT"}</Text>
+            <Text style={styles.invoiceNumber}>{details.invoiceNumber}</Text>
           </View>
         </View>
 

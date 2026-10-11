@@ -340,7 +340,9 @@ export default function PdfEditor() {
         if (cancelled || !canvasRef.current || !stageRef.current) return;
         const baseViewport = pdfPage.getViewport({ scale: 1 });
         setPageSize({ width: baseViewport.width, height: baseViewport.height });
-        const width = Math.min(stageWidth || stageRef.current.clientWidth, 860);
+        const availableWidth = stageWidth || stageRef.current.clientWidth;
+        if (!availableWidth) return;
+        const width = Math.min(availableWidth, 860);
         const viewport = pdfPage.getViewport({ scale: width / baseViewport.width });
         setPageScale(width / baseViewport.width);
         const textContent = await pdfPage.getTextContent();
@@ -376,17 +378,15 @@ export default function PdfEditor() {
         canvas.style.width = `${viewport.width}px`;
         canvas.style.height = `${viewport.height}px`;
         setCanvasHeight(viewport.height);
-        const context = canvas.getContext("2d");
-        if (!context) throw new Error("Canvas is unavailable in this browser.");
         renderTask = pdfPage.render({
           canvas,
-          canvasContext: context,
           viewport: pdfPage.getViewport({ scale: (width / baseViewport.width) * ratio }),
         });
         await renderTask.promise;
       } catch (cause) {
         if (!cancelled && !(cause instanceof Error && cause.name === "RenderingCancelledException")) {
-          setError("This page could not be displayed. Try another PDF file.");
+          const detail = cause instanceof Error ? cause.message : "Unknown PDF rendering error.";
+          setError(`The PDF opened, but its page could not be rendered: ${detail}`);
         }
       }
     }

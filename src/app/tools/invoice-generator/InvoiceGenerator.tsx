@@ -90,9 +90,9 @@ export default function InvoiceGenerator() {
       const blob = await pdf(InvoicePdf({ details, items, totals })).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      const fileNumber = details.invoiceNumber.trim() || "draft";
+      const fileNumber = details.invoiceNumber.trim();
       link.href = url;
-      link.download = `invoice-${fileNumber}`.replace(/[^\w.-]+/g, "-") + ".pdf";
+      link.download = `invoice${fileNumber ? `-${fileNumber.replace(/[^\w.-]+/g, "-")}` : ""}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -188,7 +188,7 @@ export default function InvoiceGenerator() {
             <section className={styles.preview} aria-label="Invoice preview">
               <div className={styles.previewTop}>
                 <div>
-                  <p className={styles.previewLabel}>INVOICE</p>
+                  <p className={styles.previewLabel}>DRAFT</p>
                   <p className={styles.previewBusiness}>{details.business || "Your business name"}</p>
                   {details.instagram.trim() && (
                     <p className={styles.previewInstagram}>
@@ -196,7 +196,7 @@ export default function InvoiceGenerator() {
                     </p>
                   )}
                 </div>
-                <p className={styles.previewNumber}>{details.invoiceNumber || "DRAFT"}</p>
+                <p className={styles.previewNumber}>{details.invoiceNumber}</p>
               </div>
               <div className={styles.previewMeta}>
                 <div><span>BILL TO</span><p>{details.customer || "Customer name"}</p></div>

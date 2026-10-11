@@ -124,7 +124,7 @@
   .backLink { min-height: 44px; padding: 0 12px; font-size: 10px; }
   .heading { padding: 54px 0 30px; }
   .formSection { padding: 18px 14px; }
-  .fieldGrid { gap: 12px; }
+  .fieldGrid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .itemHeaders,
   .itemRow { grid-template-columns: minmax(0, 1fr) 48px minmax(70px, .6fr) 22px; gap: 5px; }
   .itemRow input { padding: 8px 5px; font-size: 11px; }
