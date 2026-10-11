@@ -87,7 +87,7 @@ export default function Navigation({
 >
   {/* <span>07</span> */}
   <strong>GET IN TOUCH</strong>
-  {/* <em aria-hidden="true">↗</em> */}
+  {/* <em aria-hidden="true">↗︎</em> */}
 </button>
         </div>
 
@@ -157,7 +157,7 @@ export default function Navigation({
                     </strong>
 
                     <em aria-hidden="true">
-                      ↗
+                      ↗︎
                     </em>
                   </a>
                 )
@@ -179,7 +179,7 @@ export default function Navigation({
                 </strong>
 
                 <em aria-hidden="true">
-                  ↗
+                  ↗︎
                 </em>
               </button>
             </div>

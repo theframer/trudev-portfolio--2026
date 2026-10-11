@@ -166,7 +166,7 @@ export default function ContactForm({ onClose }: ContactFormProps) {
                   ? "SENDING..."
                   : "SEND MESSAGE"}
 
-                <span>↗</span>
+                <span>↗︎</span>
               </button>
 
               {error && (

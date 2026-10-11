@@ -1218,7 +1218,7 @@ export default function PdfEditor() {
       <CustomCursor />
       <main className={styles.page}>
         <div className={styles.toolbar}>
-          <Link href="/#tools" className={styles.backLink}>&#8592; TRUDEV &middot; TOOLS</Link>
+          <Link href="/#tools" className={styles.backLink}>&#8592;&#65038; TRUDEV &middot; TOOLS</Link>
           <span className={styles.privacyTag}><span /> PRIVATE BY DESIGN</span>
         </div>
         <header className={styles.heading}>
@@ -1234,7 +1234,7 @@ export default function PdfEditor() {
             <h2>Bring your document.</h2>
             <p>Choose a PDF up to 25 MB. It stays in this browser and is never uploaded.</p>
             <button className={styles.primaryButton} type="button" onClick={() => inputRef.current?.click()} disabled={busy}>
-              {busy ? "Opening PDF..." : "Choose a PDF"}<span aria-hidden="true">&#8599;</span>
+              {busy ? "Opening PDF..." : "Choose a PDF"}<span aria-hidden="true">&#8599;&#65038;</span>
             </button>
             <input ref={inputRef} className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(event) => { void loadFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
             <span className={styles.fileHint}>PDF ONLY &middot; MAX 25 MB</span>
@@ -1269,11 +1269,11 @@ export default function PdfEditor() {
                   <div className={styles.mobileToolRow}>
                     <button type="button" className={mode === "select" ? styles.mobileToolActive : ""} onClick={() => setMode("select")} aria-label="Select PDF text">A</button>
                     <button type="button" className={mode === "move" ? styles.mobileToolActive : ""} onClick={() => { setMode("move"); setSelectedId(null); setSelectedSourceRun(null); setSourceTarget(null); }} aria-label="Move PDF elements">+</button>
-                    <button type="button" className={mode === "pan" ? styles.mobileToolActive : ""} onClick={() => setMode("pan")} aria-label="Scroll PDF page" title="Scroll page">&#8597;</button>
+                    <button type="button" className={mode === "pan" ? styles.mobileToolActive : ""} onClick={() => setMode("pan")} aria-label="Scroll PDF page" title="Scroll page">&#8597;&#65038;</button>
                     <button type="button" className={mode === "text" ? styles.mobileToolActive : ""} onClick={() => { setMode("text"); setSelectedId(null); setSelectedSourceRun(null); setSourceTarget(null); setFont("Helvetica"); setBold(false); }} aria-label="Add text">T</button>
                     <button type="button" className={mode === "erase" ? styles.mobileToolActive : ""} onClick={() => { setMode("erase"); setSelectedId(null); setSelectedSourceRun(null); setSourceTarget(null); }} aria-label="Erase">&#215;</button>
-                    <button type="button" disabled={!history.past.length} onClick={undo} aria-label="Undo last edit">↶</button>
-                    <button type="button" disabled={!history.future.length} onClick={redo} aria-label="Redo last edit">↷</button>
+                    <button type="button" disabled={!history.past.length} onClick={undo} aria-label="Undo last edit">↶︎</button>
+                    <button type="button" disabled={!history.future.length} onClick={redo} aria-label="Redo last edit">↷︎</button>
 
                   </div>
                   {selectedId !== null && <button type="button" className={styles.mobileRemoveAction} onClick={removeSelected}>Remove selected edit <span aria-hidden="true">&#215;</span></button>}
@@ -1291,9 +1291,9 @@ export default function PdfEditor() {
                 </div>
                 <div className={styles.pageControls}>
                   <div className={styles.pageStepper}>
-                    <button type="button" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage((current) => current - 1)}>&#8592;</button>
+                    <button type="button" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage((current) => current - 1)}>&#8592;&#65038;</button>
                     <span><strong>{String(page).padStart(2, "0")}</strong><span> / {String(pageCount).padStart(2, "0")}</span></span>
-                    <button type="button" aria-label="Next page" disabled={page >= pageCount} onClick={() => setPage((current) => current + 1)}>&#8594;</button>
+                    <button type="button" aria-label="Next page" disabled={page >= pageCount} onClick={() => setPage((current) => current + 1)}>&#8594;&#65038;</button>
                   </div>
                   <span className={styles.modeHint}>{previewBusy ? "UPDATING PDF PREVIEWâ€¦" : previewDocument && edits.some((edit) => edit.kind === "replace" || edit.kind === "move" || edit.kind === "erase") ? "PREVIEW UPDATED Â· ORIGINAL PDF TEXT STYLE" : mode === "text" ? "TAP PAGE TO PLACE TEXT" : mode === "erase" ? "TAP AN OBJECT TO ERASE IT" : mode === "move" ? "DRAG AN OBJECT TO MOVE IT" : "TAP TEXT TO SELECT ITS ORIGINAL PDF STYLE"}</span>
                 </div>
@@ -1438,7 +1438,7 @@ export default function PdfEditor() {
                 <div className={`${styles.exportArea} ${styles.mobileExport}`}>
                   <span>{readyEditCount} {readyEditCount === 1 ? "EDIT" : "EDITS"} READY</span>
                   <button className={styles.primaryButton} type="button" disabled={busy || previewBusy || readyEditCount === 0} onClick={() => void exportPdf()}>
-                    {busy ? "Preparing..." : "Download edited PDF"}<span aria-hidden="true">&#8595;</span>
+                    {busy ? "Preparing..." : "Download edited PDF"}<span aria-hidden="true">&#8595;&#65038;</span>
                   </button>
                   <p>Existing text edits keep the PDF object styling. Erasing removes detected PDF objects. Blank-area covers only hide content visually.</p>
                 </div>
@@ -1484,10 +1484,10 @@ export default function PdfEditor() {
                     <button type="button" aria-label="Increase selected element size" onClick={() => resizeSelectedBy(1)}>+</button>
                   </div>}
                   {(selectedEdit.kind === "text" || selectedEdit.kind === "replace" || selectedEdit.kind === "move") && <div className={styles.nudgeControls} aria-label="Move selected item">
-                    <button type="button" aria-label="Move up" onClick={() => moveSelected(0, -.005)}>&#8593;</button>
-                    <button type="button" aria-label="Move left" onClick={() => moveSelected(-.005, 0)}>&#8592;</button>
-                    <button type="button" aria-label="Move down" onClick={() => moveSelected(0, .005)}>&#8595;</button>
-                    <button type="button" aria-label="Move right" onClick={() => moveSelected(.005, 0)}>&#8594;</button>
+                    <button type="button" aria-label="Move up" onClick={() => moveSelected(0, -.005)}>&#8593;&#65038;</button>
+                    <button type="button" aria-label="Move left" onClick={() => moveSelected(-.005, 0)}>&#8592;&#65038;</button>
+                    <button type="button" aria-label="Move down" onClick={() => moveSelected(0, .005)}>&#8595;&#65038;</button>
+                    <button type="button" aria-label="Move right" onClick={() => moveSelected(.005, 0)}>&#8594;&#65038;</button>
                     <span>Fine position</span>
                   </div>}
                   <button type="button" className={styles.removeEdit} onClick={removeSelected}>Remove selected edit <span>&#215;</span></button>
@@ -1495,7 +1495,7 @@ export default function PdfEditor() {
                 <div className={`${styles.exportArea} ${styles.desktopExport}`}>
                   <span>{readyEditCount} {readyEditCount === 1 ? "EDIT" : "EDITS"} READY</span>
                   <button className={styles.primaryButton} type="button" disabled={busy || previewBusy || readyEditCount === 0} onClick={() => void exportPdf()}>
-                    {busy ? "Preparing..." : "Download edited PDF"}<span aria-hidden="true">&#8595;</span>
+                    {busy ? "Preparing..." : "Download edited PDF"}<span aria-hidden="true">&#8595;&#65038;</span>
                   </button>
                   <p>Existing text edits keep the PDF object styling. Erasing removes detected PDF objects. Blank-area covers only hide content visually.</p>
                 </div>

@@ -97,7 +97,7 @@ export default function SecretCode({ onClose }: SecretCodeProps) {
 
               <button type="submit" className="secret-submit">
                 UNLOCK
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true">↗︎</span>
               </button>
             </form>
 
@@ -133,7 +133,7 @@ export default function SecretCode({ onClose }: SecretCodeProps) {
                 download
               >
                 {SECRET_ACTION.title}
-                {/* <span aria-hidden="true">↓</span> */}
+                {/* <span aria-hidden="true">↓︎</span> */}
               </a>
             )}
           
@@ -145,7 +145,7 @@ export default function SecretCode({ onClose }: SecretCodeProps) {
                 rel="noopener noreferrer"
               >
                 {SECRET_ACTION.title}
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true">↗︎</span>
               </a>
             )}
           </>

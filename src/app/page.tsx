@@ -23,10 +23,31 @@ import Footer from "@/components/Footer";
 import SecretCode from "@/components/SecretCode";
 import secretKey from "@/assets/icons/secret-key.svg";
 
+const CONTACT_PROMPT_SESSION_KEY = "trudev-contact-prompt-shown";
+
 export default function Home() {
   const [showContact, setShowContact] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem(CONTACT_PROMPT_SESSION_KEY)) return;
+    } catch {
+      // Continue with the timed prompt when browser storage is unavailable.
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowContact(true);
+      try {
+        window.sessionStorage.setItem(CONTACT_PROMPT_SESSION_KEY, "1");
+      } catch {
+        // The prompt remains available even if session storage is blocked.
+      }
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     function handleScroll() {
@@ -52,12 +73,30 @@ export default function Home() {
     });
   }
 
+  function openContactForm() {
+    try {
+      window.sessionStorage.setItem(CONTACT_PROMPT_SESSION_KEY, "1");
+    } catch {
+      // The contact form can still be opened when storage is blocked.
+    }
+    setShowContact(true);
+  }
+
+  function closeContactForm() {
+    try {
+      window.sessionStorage.setItem(CONTACT_PROMPT_SESSION_KEY, "1");
+    } catch {
+      // Dismissal still works when storage is blocked.
+    }
+    setShowContact(false);
+  }
+
   return (
     <>
       <CustomCursor />
 
       <Navigation
-        onContactClick={() => setShowContact(true)}
+        onContactClick={openContactForm}
       />
 
       <main id="top">
@@ -100,12 +139,12 @@ export default function Home() {
         onClick={handlePageNavigation}
         aria-label={isAtBottom ? "Back to top" : "Go to bottom"}
       >
-        {isAtBottom ? "↑" : "↓"}
+        {isAtBottom ? "↑︎" : "↓︎"}
       </button>
 
       {showContact && (
         <ContactForm
-          onClose={() => setShowContact(false)}
+          onClose={closeContactForm}
         />
       )}
       {showSecret && (

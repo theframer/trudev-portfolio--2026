@@ -33,7 +33,7 @@ export default function Contact() {
               >
                 <span>EMAIL</span>
                 <strong>Feel free to draft</strong>
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true">↗︎</span>
               </a>
   
               <a
@@ -44,7 +44,7 @@ export default function Contact() {
               >
                 <span>LINKEDIN</span>
                 <strong>Connect on LinkedIn</strong>
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true">↗︎</span>
               </a>
   
               <a
@@ -55,7 +55,7 @@ export default function Contact() {
               >
                 <span>GITHUB</span>
                 <strong>View my GitHub</strong>
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true">↗︎</span>
               </a>
 
               <a
@@ -66,7 +66,7 @@ export default function Contact() {
               >
                 <span>INSTAGRAM</span>
                 <strong>Visit Instagram</strong>
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true">↗︎</span>
               </a>
             </div>
           </div>

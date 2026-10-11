@@ -142,7 +142,7 @@ export default function InvoiceGenerator() {
       <CustomCursor />
       <main className={styles.page}>
         <div className={styles.toolbar}>
-          <Link href="/#tools" className={styles.backLink}>&#8592; TRUDEV &middot; TOOLS</Link>
+          <Link href="/#tools" className={styles.backLink}>&#8592;&#65038; TRUDEV &middot; TOOLS</Link>
         </div>
 
         <header className={styles.heading}>
@@ -300,7 +300,7 @@ export default function InvoiceGenerator() {
             <p className={styles.privacyNote}>Your invoice stays on this device. Download a PDF copy below.</p>
             <button type="button" className={styles.downloadButton} onClick={downloadInvoice} disabled={downloading}>
               {downloading ? "Preparing your PDF..." : "Download Invoice"}
-              {!downloading && <span aria-hidden="true">&#8595;</span>}
+              {!downloading && <span aria-hidden="true">&#8595;&#65038;</span>}
             </button>
             {validationMessage && <p className={styles.downloadError} role="alert" aria-live="polite">{validationMessage}</p>}
             {downloadError && <p className={styles.downloadError} role="alert">{downloadError}</p>}

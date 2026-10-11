@@ -50,7 +50,7 @@ export default function Tools() {
                 <h3>{tool.name}</h3>
                 <p>{tool.description}</p>
                 <a href={tool.url}>
-                  Open tool <span aria-hidden="true">&#8599;</span>
+                  Open free {tool.name.toLowerCase()} <span aria-hidden="true">&#8599;&#65038;</span>
                 </a>
               </article>
             ))}

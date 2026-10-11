@@ -54,7 +54,7 @@ export default function Work() {
             </div>
 
             <div className="work-arrow" aria-hidden="true">
-              ↗
+              ↗︎
             </div>
           </a>
 
@@ -86,7 +86,7 @@ export default function Work() {
             </div>
 
             <div className="work-arrow" aria-hidden="true">
-              ↗
+              ↗︎
             </div>
           </a>
 
@@ -118,7 +118,7 @@ export default function Work() {
             </div>
 
             <div className="work-arrow" aria-hidden="true">
-              ↗
+              ↗︎
             </div>
           </article>
         </div>

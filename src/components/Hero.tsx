@@ -23,7 +23,7 @@ export default function Hero() {
 
         <a className="hero-link" href="#tools">
           Explore my tools
-          <span aria-hidden="true">↗</span>
+          <span aria-hidden="true">↗︎</span>
         </a>
       </div>
 

@@ -39,7 +39,7 @@ export default function Blog() {
               </div>
   
               <span className="blog-arrow" aria-hidden="true">
-                ↗
+                ↗︎
               </span>
             </article>
   
@@ -61,7 +61,7 @@ export default function Blog() {
               </div>
   
               <span className="blog-arrow" aria-hidden="true">
-                ↗
+                ↗︎
               </span>
             </article>
   
@@ -82,7 +82,7 @@ export default function Blog() {
               </div>
   
               <span className="blog-arrow" aria-hidden="true">
-                ↗
+                ↗︎
               </span>
             </article>
           </div>

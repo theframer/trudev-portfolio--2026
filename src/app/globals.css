@@ -3382,3 +3382,51 @@ select {
     font-size: 16px;
   }
 }
+
+.tool-seo-content {
+  padding: 64px 24px 80px;
+  border-top: 1px solid var(--line);
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.tool-seo-content > div {
+  width: min(100%, 860px);
+  margin-inline: auto;
+}
+
+.tool-seo-content h2 {
+  margin: 0 0 18px;
+  font-size: clamp(28px, 5vw, 44px);
+  letter-spacing: -.055em;
+}
+
+.tool-seo-content h3 {
+  margin: 34px 0 12px;
+  font-size: 20px;
+  letter-spacing: -.03em;
+}
+
+.tool-seo-content h4 {
+  margin: 22px 0 6px;
+  font-size: 15px;
+}
+
+.tool-seo-content p,
+.tool-seo-content li {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.tool-seo-content ol {
+  display: grid;
+  gap: 5px;
+  padding-left: 22px;
+}
+
+@media (max-width: 700px) {
+  .tool-seo-content {
+    padding: 48px 22px 64px;
+  }
+}
