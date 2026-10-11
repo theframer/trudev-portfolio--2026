@@ -29,6 +29,9 @@ export type PdfiumObjectChange = {
   objectIndex: number;
   dx: number;
   dy: number;
+  scale?: number;
+  originX?: number;
+  originY?: number;
   erase?: boolean;
 };
 
@@ -268,7 +271,10 @@ export async function applyPdfiumObjectChanges(bytes: Uint8Array, changes: Pdfiu
         for (const change of pageChanges.filter((item) => !item.erase)) {
           const object = pdfium.FPDFPage_GetObject(page, change.objectIndex);
           if (!object) throw new Error("A selected PDF object is unavailable. Reload the original PDF and try again.");
-          pdfium.FPDFPageObj_Transform(object, 1, 0, 0, 1, change.dx, change.dy);
+          const scale = change.scale ?? 1;
+          const dx = change.dx + (change.originX ?? 0) * (1 - scale);
+          const dy = change.dy + (change.originY ?? 0) * (1 - scale);
+          pdfium.FPDFPageObj_Transform(object, scale, 0, 0, scale, dx, dy);
         }
         const eraseChanges = pageChanges.filter((item) => item.erase).sort((a, b) => b.objectIndex - a.objectIndex);
         for (const change of eraseChanges) {

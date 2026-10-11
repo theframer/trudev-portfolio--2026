@@ -52,6 +52,12 @@
 .editorGrid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; align-items: start; }
 .documentColumn { min-width: 0; padding: 0 22px 22px; border-right: 1px solid #292929; }
 .pageControls { display: flex; min-height: 64px; align-items: center; justify-content: space-between; gap: 12px; }
+.previewZoomControls { display: flex; min-height: 42px; align-items: center; justify-content: flex-end; gap: 7px; }
+.previewZoomControls > span { margin-right: 4px; color: #827e77; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
+.previewZoomControls button { min-width: 35px; min-height: 32px; padding: 0 9px; border: 1px solid #343434; color: #f3f1eb; background: #101010; font: inherit; font-size: 13px; cursor: pointer; }
+.previewZoomControls button:hover:not(:disabled) { border-color: #ff4a3e; color: #ff4a3e; }
+.previewZoomControls button:disabled { opacity: .4; cursor: default; }
+.previewZoomControls output { min-width: 42px; color: #f3f1eb; font-size: 10px; text-align: center; }
 .pageStepper { display: flex; align-items: center; gap: 11px; }
 .pageStepper button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid #343434; color: #f3f1eb; background: #101010; font-size: 17px; cursor: pointer; }
 .pageStepper button:hover:not(:disabled) { border-color: #ff4a3e; color: #ff4a3e; }
@@ -59,8 +65,8 @@
 .pageStepper > span { color: #79756f; font-size: 11px; }
 .pageStepper strong { color: #f3f1eb; font-size: 13px; }
 .modeHint { color: #918d86; font-size: 8px; font-weight: 700; letter-spacing: .11em; text-align: right; }
-.stageWrap { display: flex; justify-content: center; min-width: 0; padding: 14px; background: #171717; }
-.pageStage { position: relative; width: 100%; max-width: 860px; align-self: flex-start; overflow: hidden; background: white; touch-action: pan-y; }
+.stageWrap { min-width: 0; overflow: auto; padding: 14px; background: #171717; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; }
+.pageStage { position: relative; max-width: none; margin-inline: auto; overflow: hidden; background: white; touch-action: pan-x pan-y; }
 .pdfCanvas { display: block; max-width: 100%; height: auto; }
 .editLayer { position: absolute; inset: 0; overflow: hidden; }
 .sourceText { position: absolute; z-index: 1; display: block; min-width: 3px; min-height: 3px; overflow: hidden; padding: 0; border: 0; color: transparent; background: transparent; text-align: left; white-space: pre; cursor: text; touch-action: manipulation; }
@@ -69,6 +75,7 @@
 .replacementPatch { position: absolute; z-index: 2; background: #fff; pointer-events: none; }
 .inlineTextEditor { position: absolute; z-index: 6; display: block; min-width: 28px; margin: 0; padding: 0 2px; border: 1px solid #ff4439; border-radius: 0; color: #171717; background: #fff; font: inherit; line-height: 1.05; white-space: pre; overflow: hidden; resize: none; outline: 2px solid #ff443933; outline-offset: 1px; touch-action: manipulation; user-select: text; }
 .inlineTextEditor:focus { outline: 2px solid #ff4439; outline-offset: 1px; }
+.inlineReplacementEditor { touch-action: none; }
 .inlineAddedTextEditor { min-height: 30px; padding: 4px 6px; border-style: dashed; background: #fffffffa; line-height: 1.2; white-space: pre-wrap; overflow-wrap: anywhere; cursor: grab; touch-action: none; }
 .inlineAddedTextEditor:active { cursor: grabbing; }
 .textEdit { position: absolute; z-index: 3; max-width: 95%; padding: 1px 2px; white-space: pre-wrap; line-height: 1.2; overflow-wrap: anywhere; cursor: grab; touch-action: none; user-select: none; }
@@ -127,7 +134,7 @@
 .mobileRemoveAction span { font-size: 17px; }
 .mobileTextStyle { display: grid; grid-template-columns: minmax(110px, 1fr) 62px 48px; gap: 8px; margin-top: 9px; }
 .mobileTextStyle label { display: grid; min-width: 0; gap: 4px; color: #aaa69e; font-size: 9px; }
-.mobileTextStyle select, .mobileTextStyle input:not([type="color"]) { width: 100%; min-width: 0; min-height: 36px; padding: 5px 7px; border: 1px solid #343434; border-radius: 0; color: #f3f1eb; background: #080808; font: inherit; font-size: 11px; }
+.mobileTextStyle select, .mobileTextStyle input:not([type="color"]) { width: 100%; min-width: 0; min-height: 36px; padding: 5px 7px; border: 1px solid #343434; border-radius: 0; color: #f3f1eb; background: #080808; font: inherit; font-size: 16px; }
 .mobileTextStyle input[type="color"] { width: 100%; height: 36px; padding: 2px; border: 1px solid #343434; background: #080808; }
 .mobileTextStyle select:focus, .mobileTextStyle input:focus { outline: 1px solid #ff4a3e; outline-offset: 1px; }
 .mobileToolHint { margin: 8px 0 0; color: #8d8982; font-size: 9px; line-height: 1.4; }
@@ -160,7 +167,7 @@
   .fileIcon { width: 33px; height: 36px; }
   .fileInfo { gap: 8px; }
   .fileInfo strong { max-width: 48vw; font-size: 10px; }
-  .fileNameEditor input { width: min(38vw, 180px); min-width: 72px; font-size: 10px; }
+  .fileNameEditor input { width: min(38vw, 180px); min-width: 72px; font-size: 16px; }
   .renameFile, .fileNameEditor button { width: 25px; height: 25px; }
   .fileInfo > div > span { font-size: 9px; }
   .changeFile { min-height: 36px; padding: 0 8px; font-size: 9px; }
@@ -171,11 +178,12 @@
   .modeButtons button > span { font-size: 15px; }
   .toolFields { grid-template-columns: minmax(0, 1.15fr) minmax(100px, .85fr); gap: 9px; }
   .fieldPair { grid-template-columns: .65fr 1fr; gap: 7px; }
-  .toolFields input:not([type="color"]), .toolFields textarea, .toolFields select { font-size: 11px; }
+  .toolFields input:not([type="color"]), .toolFields textarea, .toolFields select { font-size: 16px; }
   .colorInput { gap: 5px; padding: 4px; }
   .colorInput > span { font-size: 8px; }
   .documentColumn { padding: 0 8px 14px; }
   .pageControls { min-height: 54px; }
+  .previewZoomControls { min-height: 40px; justify-content: flex-start; }
   .pageStepper { gap: 7px; }
   .pageStepper button { width: 33px; height: 33px; }
   .modeHint { max-width: 145px; font-size: 7px; line-height: 1.45; }
@@ -197,5 +205,20 @@
 .objectTarget:hover, .objectTarget:focus-visible { border-color: #448dffff; background: #448dff1c; outline: 1px solid #448dff66; }
 .objectTarget:active { cursor: grabbing; }
 .objectMoved { border-color: #ff4a3eaa; background: #ff4a3e12; }
+.resizeHandles { position: absolute; z-index: 40; pointer-events: none; }
+.resizeHandle { position: absolute; width: 12px; height: 12px; padding: 0; border: 2px solid #080808; border-radius: 50%; background: #ff4a3e; box-shadow: 0 0 0 1px #ff4a3e; pointer-events: auto; touch-action: none; cursor: nwse-resize; }
+.resizeHandle:hover { transform: scale(1.25); }
+.top-left { top: 0; left: 0; transform: translate(-50%, -50%); }
+.top-right { top: 0; right: 0; transform: translate(50%, -50%); }
+.bottom-left { bottom: 0; left: 0; transform: translate(-50%, 50%); }
+.bottom-right { right: 0; bottom: 0; transform: translate(50%, 50%); }
 .pageStage.panMode .editLayer { pointer-events: none; }
+
+@media (pointer: coarse) {
+  .resizeHandles { display: none; }
+}
+
+@media (pointer: coarse) {
+  .resizeHandles { display: none; }
+}
 .mobileToolRow button[aria-label="Move PDF elements"] { font-size: 23px; line-height: 1; }

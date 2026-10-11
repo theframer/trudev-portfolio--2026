@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import CustomCursor from "@/components/CustomCursor";
@@ -22,6 +22,7 @@ type PdfEdit = {
   sourceBounds?: PdfiumTextTarget["bounds"];
   moveDx?: number;
   moveDy?: number;
+  scale?: number;
   text?: string;
   fontSize?: number;
   font?: string;
@@ -51,6 +52,9 @@ let pdfJsRuntimeInfo: {
 } | null = null;
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
+const MIN_PREVIEW_ZOOM = 0.75;
+const MAX_PREVIEW_ZOOM = 2.5;
+const RESIZE_CORNERS = ["top-left", "top-right", "bottom-left", "bottom-right"] as const;
 
 async function loadPdfJs() {
   const compatibility = await import("./pdfjs-compat");
@@ -201,12 +205,17 @@ export default function PdfEditor() {
   const [coverStart, setCoverStart] = useState<{ x: number; y: number } | null>(null);
   const [coverEnd, setCoverEnd] = useState<{ x: number; y: number } | null>(null);
   const [canvasHeight, setCanvasHeight] = useState(0);
+  const [canvasWidth, setCanvasWidth] = useState(0);
   const [pageScale, setPageScale] = useState(1);
+  const [previewZoom, setPreviewZoom] = useState(1);
   const [stageWidth, setStageWidth] = useState(0);
   const [dragPreview, setDragPreview] = useState<{ id: number; x: number; y: number } | null>(null);
   const dragRef = useRef<{ id: number; offsetX: number; offsetY: number } | null>(null);
   const inlineDragRef = useRef<{ id: number; startX: number; startY: number; offsetX: number; offsetY: number; dragging: boolean } | null>(null);
   const objectDragRef = useRef<{ objectIndex: number; start: { x: number; y: number }; offsetX: number; offsetY: number } | null>(null);
+  const resizeGestureRef = useRef<{ editId: number; pointerId: number; startDistance: number; startFontSize: number; startScale: number; anchorX: number; anchorY: number } | null>(null);
+  const activeTouchPointsRef = useRef(new Map<number, { x: number; y: number }>());
+  const [resizePreview, setResizePreview] = useState<{ editId: number; fontSize: number; scale: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [renderDiagnostics, setRenderDiagnostics] = useState("");
@@ -385,7 +394,7 @@ export default function PdfEditor() {
         setPageSize({ width: baseViewport.width, height: baseViewport.height });
         const availableWidth = stageWidth || stageRef.current.clientWidth;
         if (!availableWidth) return;
-        const width = Math.min(availableWidth, 860);
+        const width = Math.min(availableWidth, 860) * previewZoom;
         const viewport = pdfPage.getViewport({ scale: width / baseViewport.width });
         setPageScale(width / baseViewport.width);
         stage = "Requesting text content from the PDF.js worker";
@@ -425,6 +434,7 @@ export default function PdfEditor() {
         canvas.height = Math.ceil(viewport.height * ratio);
         canvas.style.width = `${viewport.width}px`;
         canvas.style.height = `${viewport.height}px`;
+        setCanvasWidth(viewport.width);
         setCanvasHeight(viewport.height);
         stage = "Starting the PDF canvas renderer";
         const previousRenderTask = activeRenderTaskRef.current;
@@ -494,7 +504,7 @@ export default function PdfEditor() {
       cancelled = true;
       renderTask?.cancel();
     };
-  }, [renderDocument, page, stageWidth]);
+  }, [renderDocument, page, stageWidth, previewZoom]);
 
   useEffect(() => {
     if (!document || !stageRef.current) return;
@@ -507,6 +517,7 @@ export default function PdfEditor() {
 
   useEffect(() => {
     if ((selectedSourceRun && sourceTarget) || selectedEdit?.kind === "replace" || selectedEdit?.kind === "text") {
+      if (window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0) return;
       inlineEditorRef.current?.focus();
     }
   }, [selectedSourceRun, sourceTarget, selectedId, selectedEdit?.kind]);
@@ -535,6 +546,7 @@ export default function PdfEditor() {
       setRenamingFile(false);
       setDraftFileName("");
       setPage(1);
+      setPreviewZoom(1);
       setHistory({ past: [], present: [], future: [] });
       setTextRuns([]);
       setPageObjectsResult({ page: 0, fileBytes: null, objects: [], error: "" });
@@ -650,9 +662,30 @@ export default function PdfEditor() {
     if (field === "bold") setBold(Boolean(value));
   }
 
-  function beginObjectMove(event: React.PointerEvent<HTMLButtonElement>, object: PdfiumPageObject) {
+  function ensureMoveEdit(object: PdfiumPageObject) {
+    let edit = edits.find((item) => item.page === page && item.kind === "move" && item.sourceObjectIndex === object.objectIndex);
+    if (!edit) {
+      edit = {
+        id: nextIdRef.current++, page, kind: "move", sourceObjectIndex: object.objectIndex,
+        sourceBounds: object.bounds, x: 0, y: 0, moveDx: 0, moveDy: 0, scale: 1,
+      };
+      updateEdits((current) => [...current, edit!]);
+    }
+    setSelectedId(edit.id);
+    return edit;
+  }
+
+  function beginObjectMove(event: React.PointerEvent<HTMLElement>, object: PdfiumPageObject) {
     event.stopPropagation();
     if (mode === "erase") return;
+    if (event.pointerType === "touch") {
+      if (activeTouchPointsRef.current.size === 0) {
+        activeTouchPointsRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      } else {
+        const edit = ensureMoveEdit(object);
+        if (beginTouchResize(event, edit)) return;
+      }
+    }
     event.currentTarget.setPointerCapture(event.pointerId);
     const start = pointFromStage(event, pageRef.current!);
     objectDragRef.current = {
@@ -663,14 +696,20 @@ export default function PdfEditor() {
     };
   }
 
-  function updateObjectMove(event: React.PointerEvent<HTMLButtonElement>, object: PdfiumPageObject) {
+  function updateObjectMove(event: React.PointerEvent<HTMLElement>, object: PdfiumPageObject) {
+    if (updateResizeGesture(event)) return;
     const drag = objectDragRef.current;
     if (!drag || !pageRef.current) return;
     const point = pointFromStage(event, pageRef.current);
     setDragPreview({ id: -(object.objectIndex + 1), x: point.x - drag.offsetX, y: point.y - drag.offsetY });
   }
 
-  function finishObjectMove(event: React.PointerEvent<HTMLButtonElement>, object: PdfiumPageObject) {
+  function finishObjectMove(event: React.PointerEvent<HTMLElement>, object: PdfiumPageObject) {
+    if (finishResizeGesture(event)) {
+      objectDragRef.current = null;
+      return;
+    }
+    activeTouchPointsRef.current.delete(event.pointerId);
     const drag = objectDragRef.current;
     objectDragRef.current = null;
     if (!drag || !pageRef.current) return;
@@ -688,12 +727,15 @@ export default function PdfEditor() {
     } else {
       const id = nextIdRef.current++;
       setSelectedId(id);
-      updateEdits((current) => [...current, { id, page, kind: "move", sourceObjectIndex: object.objectIndex, x: 0, y: 0, moveDx: dx, moveDy: dy }]);
+      updateEdits((current) => [...current, { id, page, kind: "move", sourceObjectIndex: object.objectIndex, sourceBounds: object.bounds, x: 0, y: 0, moveDx: dx, moveDy: dy, scale: 1 }]);
     }
   }
 
   function cancelObjectMove() {
     objectDragRef.current = null;
+    resizeGestureRef.current = null;
+    activeTouchPointsRef.current.clear();
+    setResizePreview(null);
     setDragPreview(null);
   }
 
@@ -718,6 +760,101 @@ export default function PdfEditor() {
         ? { ...edit, moveDx: (edit.moveDx ?? 0) + dx, moveDy: (edit.moveDy ?? 0) + dy }
         : { ...edit, x: Math.min(1, Math.max(0, edit.x + dx)), y: Math.min(1, Math.max(0, edit.y + dy)) }
       : edit));
+  }
+
+  function beginTouchResize(event: React.PointerEvent, edit: PdfEdit) {
+    if (event.pointerType !== "touch") return false;
+    const points = activeTouchPointsRef.current;
+    points.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (points.size < 2) return false;
+    const [first, second] = Array.from(points.values());
+    const distance = Math.max(1, Math.hypot(second.x - first.x, second.y - first.y));
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.currentTarget instanceof HTMLTextAreaElement) event.currentTarget.blur();
+    dragRef.current = null;
+    inlineDragRef.current = null;
+    objectDragRef.current = null;
+    setDragPreview(null);
+    resizeGestureRef.current = {
+      editId: edit.id,
+      pointerId: event.pointerId,
+      startDistance: distance,
+      startFontSize: edit.fontSize ?? 16,
+      startScale: edit.scale ?? 1,
+      anchorX: (first.x + second.x) / 2,
+      anchorY: (first.y + second.y) / 2,
+    };
+    setSelectedId(edit.id);
+    setResizePreview({ editId: edit.id, fontSize: edit.fontSize ?? 16, scale: edit.scale ?? 1 });
+    event.currentTarget.setPointerCapture(event.pointerId);
+    return true;
+  }
+
+  function beginCornerResize(event: React.PointerEvent<HTMLButtonElement>, edit: PdfEdit, corner: "top-left" | "top-right" | "bottom-left" | "bottom-right") {
+    event.preventDefault();
+    event.stopPropagation();
+    const resizeEdit = edit.id < 0 ? ensureReplacementEdit() ?? edit : edit;
+    const bounds = event.currentTarget.parentElement?.getBoundingClientRect();
+    if (!bounds) return;
+    const anchorX = corner.endsWith("left") ? bounds.right : bounds.left;
+    const anchorY = corner.startsWith("top") ? bounds.bottom : bounds.top;
+    const distance = Math.max(1, Math.hypot(event.clientX - anchorX, event.clientY - anchorY));
+    resizeGestureRef.current = {
+      editId: resizeEdit.id,
+      pointerId: event.pointerId,
+      startDistance: distance,
+      startFontSize: resizeEdit.fontSize ?? 16,
+      startScale: resizeEdit.scale ?? 1,
+      anchorX,
+      anchorY,
+    };
+    setSelectedId(resizeEdit.id);
+    setResizePreview({ editId: resizeEdit.id, fontSize: resizeEdit.fontSize ?? 16, scale: resizeEdit.scale ?? 1 });
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function updateResizeGesture(event: React.PointerEvent) {
+    const gesture = resizeGestureRef.current;
+    if (!gesture) return false;
+    let distance: number;
+    if (event.pointerType === "touch" && activeTouchPointsRef.current.size >= 2) {
+      activeTouchPointsRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      const [first, second] = Array.from(activeTouchPointsRef.current.values());
+      distance = Math.max(1, Math.hypot(second.x - first.x, second.y - first.y));
+    } else if (event.pointerType === "touch" && activeTouchPointsRef.current.size > 0) {
+      // Keep the final two-finger size until both contacts are released.
+      return true;
+    } else {
+      if (gesture.pointerId !== event.pointerId) return false;
+      distance = Math.max(1, Math.hypot(event.clientX - gesture.anchorX, event.clientY - gesture.anchorY));
+    }
+    event.preventDefault();
+    const ratio = Math.min(5, Math.max(.2, distance / gesture.startDistance));
+    setResizePreview({ editId: gesture.editId, fontSize: Math.min(72, Math.max(8, gesture.startFontSize * ratio)), scale: Math.min(5, Math.max(.2, gesture.startScale * ratio)) });
+    return true;
+  }
+
+  function finishResizeGesture(event: React.PointerEvent) {
+    const gesture = resizeGestureRef.current;
+    if (!gesture) return false;
+    if (event.pointerType === "touch" && activeTouchPointsRef.current.has(event.pointerId)) {
+      activeTouchPointsRef.current.delete(event.pointerId);
+      if (activeTouchPointsRef.current.size > 0) return true;
+    } else if (gesture.pointerId !== event.pointerId) {
+      return false;
+    }
+    const preview = resizePreview;
+    if (preview?.editId === gesture.editId) {
+      updateEdits((current) => current.map((edit) => edit.id === gesture.editId
+        ? edit.kind === "text"
+          ? { ...edit, fontSize: preview.fontSize }
+          : { ...edit, scale: preview.scale }
+        : edit));
+    }
+    resizeGestureRef.current = null;
+    setResizePreview(null);
+    return true;
   }
 
   async function selectExistingText(run: PdfTextRun) {
@@ -756,8 +893,44 @@ export default function PdfEditor() {
     }
   }
 
+  function ensureReplacementEdit() {
+    if (selectedEdit?.kind === "replace") return selectedEdit;
+    if (!selectedSourceRun || !sourceTarget) return null;
+    const edit: PdfEdit = {
+      id: nextIdRef.current++, page: selectedSourceRun.page, kind: "replace",
+      sourceRunId: selectedSourceRun.id, sourceObjectIndex: sourceTarget.objectIndex,
+      sourceText: sourceTarget.text, sourceBounds: sourceTarget.bounds,
+      x: selectedSourceRun.x, y: selectedSourceRun.y,
+      width: selectedSourceRun.width, height: selectedSourceRun.height,
+      text: selectedSourceRun.text, font: sourceTarget.fontFamily,
+      fontSize: sourceTarget.fontSize, color: sourceTarget.color,
+      bold: sourceTarget.bold, scale: 1,
+    };
+    updateEdits((current) => [...current, edit]);
+    setSelectedId(edit.id);
+    setSelectedSourceRun(null);
+    return edit;
+  }
+
+  function beginReplacementTouch(event: React.PointerEvent<HTMLTextAreaElement>) {
+    event.stopPropagation();
+    if (event.pointerType !== "touch") return;
+    if (activeTouchPointsRef.current.size === 0) {
+      activeTouchPointsRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      return;
+    }
+    const edit = ensureReplacementEdit();
+    if (edit) beginTouchResize(event, edit);
+  }
+
+  function finishReplacementTouch(event: React.PointerEvent<HTMLTextAreaElement>) {
+    if (finishResizeGesture(event)) return;
+    activeTouchPointsRef.current.delete(event.pointerId);
+  }
+
   function beginTextDrag(event: React.PointerEvent<HTMLDivElement>, edit: PdfEdit) {
     if ((mode !== "select" && mode !== "text") || !stageRef.current) return;
+    if (beginTouchResize(event, edit)) return;
     event.preventDefault();
     event.stopPropagation();
     if (!pageRef.current) return;
@@ -769,6 +942,7 @@ export default function PdfEditor() {
   }
 
   function moveTextDrag(event: React.PointerEvent<HTMLElement>, edit: PdfEdit) {
+    if (updateResizeGesture(event)) return;
     if (!dragRef.current || dragRef.current.id !== edit.id || !pageRef.current) return;
     event.preventDefault();
     const point = pointFromStage(event, pageRef.current);
@@ -780,6 +954,7 @@ export default function PdfEditor() {
   }
 
   function beginInlineTextGesture(event: React.PointerEvent<HTMLTextAreaElement>, edit: PdfEdit) {
+    if (beginTouchResize(event, edit)) return;
     event.stopPropagation();
     if (!pageRef.current) return;
     const point = pointFromStage(event, pageRef.current);
@@ -795,6 +970,7 @@ export default function PdfEditor() {
   }
 
   function moveInlineTextGesture(event: React.PointerEvent<HTMLTextAreaElement>, edit: PdfEdit) {
+    if (updateResizeGesture(event)) return;
     const gesture = inlineDragRef.current;
     if (!gesture || gesture.id !== edit.id || !pageRef.current) return;
     if (!gesture.dragging) {
@@ -808,14 +984,18 @@ export default function PdfEditor() {
     moveTextDrag(event, edit);
   }
 
-  function finishInlineTextGesture(edit: PdfEdit) {
+  function finishInlineTextGesture(event: React.PointerEvent<HTMLTextAreaElement>, edit: PdfEdit) {
+    if (finishResizeGesture(event)) return;
+    activeTouchPointsRef.current.delete(event.pointerId);
     const gesture = inlineDragRef.current;
     if (!gesture || gesture.id !== edit.id) return;
     inlineDragRef.current = null;
-    if (gesture.dragging) endTextDrag(edit);
+    if (gesture.dragging) endTextDrag(event, edit);
   }
 
-  function endTextDrag(edit: PdfEdit) {
+  function endTextDrag(event: React.PointerEvent, edit: PdfEdit) {
+    if (finishResizeGesture(event)) return;
+    activeTouchPointsRef.current.delete(event.pointerId);
     if (!dragRef.current || dragRef.current.id !== edit.id || !dragPreview) return;
     const position = dragPreview;
     updateEdits((current) => current.map((item) => item.id === edit.id
@@ -831,7 +1011,7 @@ export default function PdfEditor() {
     setBusy(true);
     setError("");
     try {
-      const replacementEdits = readyEdits.filter((edit) => edit.kind === "replace");
+      const replacementEdits = readyEdits.filter((edit) => edit.kind === "replace" && edit.text !== edit.sourceText);
       let pdfiumBytes = replacementEdits.length
         ? await applyPdfiumTextChanges(fileBytes, replacementEdits.map((edit) => ({
           page: edit.page,
@@ -846,15 +1026,19 @@ export default function PdfEditor() {
         try { await verifyReplacementText(textPreview, replacementEdits); }
         finally { await textPreview.cleanup(); }
       }
-      const objectEdits = readyEdits.filter((edit) => edit.kind === "move" || edit.kind === "erase");
+      const objectEdits = readyEdits.filter((edit) => edit.kind === "move" || edit.kind === "erase" || (edit.kind === "replace" && (edit.scale ?? 1) !== 1));
       const objectChanges = await Promise.all(objectEdits.map(async (edit) => {
         const sourcePage = await document!.getPage(edit.page);
         const viewport = sourcePage.getViewport({ scale: 1 });
+        const bounds = edit.sourceBounds;
         return {
           page: edit.page,
           objectIndex: edit.sourceObjectIndex!,
           dx: (edit.moveDx ?? 0) * viewport.width,
           dy: -(edit.moveDy ?? 0) * viewport.height,
+          scale: edit.scale ?? 1,
+          originX: bounds ? (bounds.left + bounds.right) / 2 : 0,
+          originY: bounds ? (bounds.bottom + bounds.top) / 2 : 0,
           erase: edit.kind === "erase",
         };
       }));
@@ -934,6 +1118,51 @@ export default function PdfEditor() {
     width: Math.abs(coverStart.x - coverEnd.x),
     height: Math.abs(coverStart.y - coverEnd.y),
   } : null;
+  const replacementScale = resizePreview?.editId === selectedEdit?.id ? resizePreview?.scale ?? (selectedEdit?.scale ?? 1) : selectedEdit?.scale ?? 1;
+  const replacementResizeEdit = selectedEdit?.kind === "replace" ? selectedEdit : selectedSourceRun && sourceTarget ? {
+    id: -1,
+    page: selectedSourceRun.page,
+    kind: "replace" as const,
+    sourceRunId: selectedSourceRun.id,
+    sourceObjectIndex: sourceTarget.objectIndex,
+    sourceText: sourceTarget.text,
+    sourceBounds: sourceTarget.bounds,
+    x: selectedSourceRun.x,
+    y: selectedSourceRun.y,
+    width: selectedSourceRun.width,
+    height: selectedSourceRun.height,
+    text: selectedSourceRun.text,
+    font: sourceTarget.fontFamily,
+    fontSize: sourceTarget.fontSize,
+    color: sourceTarget.color,
+    bold: sourceTarget.bold,
+    scale: 1,
+  } satisfies PdfEdit : null;
+  const replacementEditorFontSize = inlineReplacementRun
+    ? Math.max(8, (sourceTarget?.fontSize ?? inlineReplacementRun.fontSize) * pageScale * replacementScale)
+    : 16;
+  const replacementEditorScale = Math.min(1, replacementEditorFontSize / 16);
+
+  function changePreviewZoom(delta: number) {
+    setPreviewZoom((current) => Math.min(MAX_PREVIEW_ZOOM, Math.max(MIN_PREVIEW_ZOOM, Math.round((current + delta) * 100) / 100)));
+  }
+
+  function renderResizeHandles(edit: PdfEdit, frameStyle: React.CSSProperties) {
+    return <div className={styles.resizeHandles} style={frameStyle} aria-label="Resize selected PDF element">
+      {RESIZE_CORNERS.map((corner) => <button
+        key={corner}
+        type="button"
+        className={`${styles.resizeHandle} ${styles[corner]}`}
+        aria-label={`Resize from ${corner.replace("-", " ")}`}
+        // This handler uses refs only after the user presses a resize handle.
+        // eslint-disable-next-line react-hooks/refs
+        onPointerDown={(event) => beginCornerResize(event, edit, corner)}
+        onPointerMove={updateResizeGesture}
+        onPointerUp={finishResizeGesture}
+        onPointerCancel={finishResizeGesture}
+      />)}
+    </div>;
+  }
 
   return (
     <>
@@ -1004,7 +1233,7 @@ export default function PdfEditor() {
                     <label>Size<input type="number" min="8" max="72" value={activeFontSize} onChange={(event) => updateSelectedText("fontSize", Math.min(72, Math.max(8, Number(event.target.value) || 8)))} /></label>
                     <label>Color<input type="color" aria-label="Text color" value={activeColor} onChange={(event) => updateSelectedText("color", event.target.value)} /></label>
                   </div>}
-                  <p className={styles.mobileToolHint}>{editingExistingText ? "Tap the highlighted text to type directly in place. Original PDF styling is retained." : mode === "pan" ? "Swipe over the page to scroll without editing." : mode === "text" ? "Tap a blank area to add text. Drag the text box to move it." : mode === "move" ? "Drag a detected PDF object to move it while keeping its appearance." : mode === "erase" ? "Tap a detected object to remove it. Drag blank space for a visual cover." : "Tap text on the page to edit it in place. Drag added text to move it."}</p>
+                  <p className={styles.mobileToolHint}>{editingExistingText ? "Tap the highlighted text to type directly in place. Pinch to resize it; original styling is retained." : mode === "pan" ? "Swipe over the page to scroll without editing." : mode === "text" ? "Tap a blank area to add text. Drag to move it; pinch with two fingers to resize." : mode === "move" ? "Drag a detected PDF object to move it. Pinch it with two fingers to resize." : mode === "erase" ? "Tap a detected object to remove it. Drag blank space for a visual cover." : "Tap text on the page to edit it. Drag added text to move it; pinch to resize."}</p>
                 </div>
                 <div className={styles.pageControls}>
                   <div className={styles.pageStepper}>
@@ -1014,11 +1243,18 @@ export default function PdfEditor() {
                   </div>
                   <span className={styles.modeHint}>{previewBusy ? "UPDATING PDF PREVIEWâ€¦" : previewDocument && edits.some((edit) => edit.kind === "replace" || edit.kind === "move" || edit.kind === "erase") ? "PREVIEW UPDATED Â· ORIGINAL PDF TEXT STYLE" : mode === "text" ? "TAP PAGE TO PLACE TEXT" : mode === "erase" ? "TAP AN OBJECT TO ERASE IT" : mode === "move" ? "DRAG AN OBJECT TO MOVE IT" : "TAP TEXT TO SELECT ITS ORIGINAL PDF STYLE"}</span>
                 </div>
+                <div className={styles.previewZoomControls} aria-label="PDF preview zoom controls">
+                  <span>PREVIEW ZOOM</span>
+                  <button type="button" aria-label="Zoom out preview" disabled={previewZoom <= MIN_PREVIEW_ZOOM} onClick={() => changePreviewZoom(-0.25)}>&minus;</button>
+                  <output aria-live="polite">{Math.round(previewZoom * 100)}%</output>
+                  <button type="button" aria-label="Zoom in preview" disabled={previewZoom >= MAX_PREVIEW_ZOOM} onClick={() => changePreviewZoom(0.25)}>+</button>
+                  <button type="button" onClick={() => setPreviewZoom(1)} disabled={previewZoom === 1}>Fit</button>
+                </div>
                 <div className={styles.stageWrap} ref={stageRef}>
                   <div
                     ref={pageRef}
                     className={`${styles.pageStage} ${mode === "text" ? styles.textMode : ""} ${mode === "erase" ? styles.coverMode : ""} ${mode === "move" ? styles.moveMode : ""} ${mode === "pan" ? styles.panMode : ""}`}
-                    style={{ minHeight: canvasHeight || 600 }}
+                    style={{ width: canvasWidth || undefined, minHeight: canvasHeight || 600 }}
                     onPointerDown={handleStagePointerDown}
                     onPointerMove={handleStagePointerMove}
                     onPointerUp={handleStagePointerUp}
@@ -1036,19 +1272,23 @@ export default function PdfEditor() {
                         const objectHeight = (object.bounds.top - object.bounds.bottom) / pageSize.height;
                         const dx = objectEdit?.kind === "move" ? objectEdit.moveDx ?? 0 : 0;
                         const dy = objectEdit?.kind === "move" ? objectEdit.moveDy ?? 0 : 0;
+                        const scale = resizePreview?.editId === objectEdit?.id ? resizePreview?.scale ?? (objectEdit?.scale ?? 1) : objectEdit?.scale ?? 1;
                         const isDragging = dragPreview?.id === -(object.objectIndex + 1);
-                        const x = isDragging ? dragPreview.x : baseX + dx;
-                        const y = isDragging ? dragPreview.y : baseY + dy;
-                        return <button key={`pdf-object-${object.objectIndex}`} type="button"
+                        const x = (isDragging ? dragPreview.x : baseX + dx) - (objectWidth * (scale - 1)) / 2;
+                        const y = (isDragging ? dragPreview.y : baseY + dy) - (objectHeight * (scale - 1)) / 2;
+                        const frameStyle = { left: `${x * 100}%`, top: `${y * 100}%`, width: `${Math.max(.35, objectWidth * scale * 100)}%`, height: `${Math.max(.35, objectHeight * scale * 100)}%` };
+                        return <Fragment key={`pdf-object-${object.objectIndex}`}><button type="button"
                           className={`${styles.objectTarget} ${objectEdit?.kind === "move" ? styles.objectMoved : ""}`}
-                          style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${Math.max(.35, objectWidth * 100)}%`, height: `${Math.max(.35, objectHeight * 100)}%`, zIndex: 5 + object.objectIndex }}
+                          style={{ ...frameStyle, zIndex: 5 + object.objectIndex }}
                           aria-label={`${mode === "erase" ? "Erase" : "Move"} PDF ${object.type === 1 ? "text" : object.type === 2 ? "shape" : object.type === 3 ? "image" : "object"}`}
                           title={mode === "erase" ? "Tap to erase this PDF object" : "Drag to move this PDF object"}
                           onPointerDown={(event) => beginObjectMove(event, object)}
                           onPointerMove={(event) => updateObjectMove(event, object)}
                           onPointerUp={(event) => finishObjectMove(event, object)}
                           onPointerCancel={cancelObjectMove}
-                          onClick={(event) => { event.stopPropagation(); if (mode === "erase") eraseObject(object); }} />;
+                          onClick={(event) => { event.stopPropagation(); if (mode === "erase") eraseObject(object); else ensureMoveEdit(object); }} />
+                          {mode === "move" && selectedId === objectEdit?.id && objectEdit && renderResizeHandles(objectEdit, frameStyle)}
+                        </Fragment>;
                       })}
                       {mode === "select" && visibleTextRuns.map((run) => (
                         <button
@@ -1068,41 +1308,61 @@ export default function PdfEditor() {
                         aria-label="Edit selected PDF text"
                         value={activeText}
                         onChange={(event) => updateSelectedText("text", event.target.value)}
-                        onPointerDown={(event) => event.stopPropagation()}
+                        onPointerDown={beginReplacementTouch}
+                        onPointerMove={updateResizeGesture}
+                        onPointerUp={finishReplacementTouch}
+                        onPointerCancel={finishReplacementTouch}
                         onKeyDown={(event) => { if (event.key === "Escape") event.currentTarget.blur(); }}
-                        style={{ left: `${inlineReplacementRun.x * 100}%`, top: `${inlineReplacementRun.y * 100}%`, width: `${inlineReplacementRun.width * 100}%`, height: `${inlineReplacementRun.height * 100}%`, fontFamily: sourceTarget?.fontFamily ?? inlineReplacementRun.fontFamily, fontSize: `${(sourceTarget?.fontSize ?? inlineReplacementRun.fontSize) * pageScale}px`, fontWeight: (sourceTarget?.bold ?? inlineReplacementRun.bold) ? 700 : 400, color: sourceTarget?.color ?? selectedEdit?.color ?? color }}
+                        style={{ left: `${(inlineReplacementRun.x - inlineReplacementRun.width * (replacementScale - 1) / 2) * 100}%`, top: `${(inlineReplacementRun.y - inlineReplacementRun.height * (replacementScale - 1) / 2) * 100}%`, width: `${inlineReplacementRun.width * replacementScale * 100 / replacementEditorScale}%`, height: `${inlineReplacementRun.height * replacementScale * 100 / replacementEditorScale}%`, transform: `scale(${replacementEditorScale})`, transformOrigin: "top left", fontFamily: sourceTarget?.fontFamily ?? inlineReplacementRun.fontFamily, fontSize: `${Math.max(16, replacementEditorFontSize)}px`, fontWeight: (sourceTarget?.bold ?? inlineReplacementRun.bold) ? 700 : 400, color: sourceTarget?.color ?? selectedEdit?.color ?? color }}
                       />}
-                      {visibleEdits.map((edit) => (
-                        edit.kind === "text" ? (
-                          selectedId === edit.id ? <textarea
-                            key={edit.id}
-                            ref={inlineEditorRef}
-                            className={`${styles.inlineTextEditor} ${styles.inlineAddedTextEditor}`}
-                            aria-label="Edit added text"
-                            value={edit.text ?? ""}
-                            onChange={(event) => updateSelectedText("text", event.target.value)}
-                            onPointerDown={(event) => beginInlineTextGesture(event, edit)}
-                            onPointerMove={(event) => moveInlineTextGesture(event, edit)}
-                            onPointerUp={() => finishInlineTextGesture(edit)}
-                            onPointerCancel={() => finishInlineTextGesture(edit)}
-                            onLostPointerCapture={() => finishInlineTextGesture(edit)}
-                            onKeyDown={(event) => { if (event.key === "Escape") event.currentTarget.blur(); }}
-                            style={{ left: `${(dragPreview?.id === edit.id ? dragPreview.x : edit.x) * 100}%`, top: `${(dragPreview?.id === edit.id ? dragPreview.y : edit.y) * 100}%`, width: `${Math.max(18, Math.min(38, (1 - edit.x) * 100))}%`, minHeight: `${Math.max(28, (edit.fontSize ?? 16) * pageScale * 1.7)}px`, color: edit.color, fontSize: `${Math.max(8, (edit.fontSize ?? 16) * pageScale)}px`, fontFamily: /times|georgia|serif/i.test(edit.font ?? "") ? "Georgia, serif" : /courier|mono|consolas/i.test(edit.font ?? "") ? "monospace" : "Arial, sans-serif", fontWeight: edit.bold ? 700 : 400 }}
-                          /> : <div
-                            key={edit.id}
-                            className={`${styles.textEdit} ${selectedId === edit.id ? styles.selectedEdit : ""}`}
-                            style={{ left: `${(dragPreview?.id === edit.id ? dragPreview.x : edit.x) * 100}%`, top: `${(dragPreview?.id === edit.id ? dragPreview.y : edit.y) * 100}%`, color: edit.color, fontSize: `${Math.max(8, (edit.fontSize ?? 16) * pageScale)}px`, fontFamily: /times|georgia|serif/i.test(edit.font ?? "") ? "Georgia, serif" : /courier|mono|consolas/i.test(edit.font ?? "") ? "monospace" : "Arial, sans-serif", fontWeight: edit.bold ? 700 : 400 }}
-                            onPointerDown={(event) => beginTextDrag(event, edit)}
-                            onPointerMove={(event) => moveTextDrag(event, edit)}
-                            onPointerUp={() => endTextDrag(edit)}
-                            onPointerCancel={() => endTextDrag(edit)}
-                            onLostPointerCapture={() => endTextDrag(edit)}
-                            onClick={() => { setSelectedId(edit.id); setMode("select"); }}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`Select and drag text: ${edit.text}`}
-                            onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedId(edit.id); } }}
-                          >{edit.text}</div>
+                      {inlineReplacementRun && replacementResizeEdit && renderResizeHandles(replacementResizeEdit, {
+                        left: `${(inlineReplacementRun.x - inlineReplacementRun.width * (replacementScale - 1) / 2) * 100}%`,
+                        top: `${(inlineReplacementRun.y - inlineReplacementRun.height * (replacementScale - 1) / 2) * 100}%`,
+                        width: `${inlineReplacementRun.width * replacementScale * 100}%`,
+                        height: `${inlineReplacementRun.height * replacementScale * 100}%`,
+                      })}
+                      {visibleEdits.map((edit) => {
+                        const resizeFontSize = resizePreview?.editId === edit.id ? resizePreview.fontSize : edit.fontSize ?? 16;
+                        const editorFontSize = Math.max(8, resizeFontSize * pageScale);
+                        const editorScale = Math.min(1, editorFontSize / 16);
+                        const textBoxWidth = Math.max(18, Math.min(38, (1 - edit.x) * 100));
+                        const textBoxHeight = Math.max(28, resizeFontSize * pageScale * 1.7);
+                        return edit.kind === "text" ? (
+                          <Fragment key={edit.id}>
+                            {selectedId === edit.id ? <textarea
+                              ref={inlineEditorRef}
+                              className={`${styles.inlineTextEditor} ${styles.inlineAddedTextEditor}`}
+                              aria-label="Edit added text"
+                              value={edit.text ?? ""}
+                              onChange={(event) => updateSelectedText("text", event.target.value)}
+                              onPointerDown={(event) => beginInlineTextGesture(event, edit)}
+                              onPointerMove={(event) => moveInlineTextGesture(event, edit)}
+                              onPointerUp={(event) => finishInlineTextGesture(event, edit)}
+                              onPointerCancel={(event) => finishInlineTextGesture(event, edit)}
+                              onLostPointerCapture={(event) => finishInlineTextGesture(event, edit)}
+                              onKeyDown={(event) => { if (event.key === "Escape") event.currentTarget.blur(); }}
+                              style={{ left: `${(dragPreview?.id === edit.id ? dragPreview.x : edit.x) * 100}%`, top: `${(dragPreview?.id === edit.id ? dragPreview.y : edit.y) * 100}%`, width: `${textBoxWidth / editorScale}%`, minHeight: `${textBoxHeight / editorScale}px`, transform: `scale(${editorScale})`, transformOrigin: "top left", color: edit.color, fontSize: `${Math.max(16, editorFontSize)}px`, fontFamily: /times|georgia|serif/i.test(edit.font ?? "") ? "Georgia, serif" : /courier|mono|consolas/i.test(edit.font ?? "") ? "monospace" : "Arial, sans-serif", fontWeight: edit.bold ? 700 : 400 }}
+                            /> : <div
+                              className={styles.textEdit}
+                              style={{ left: `${(dragPreview?.id === edit.id ? dragPreview.x : edit.x) * 100}%`, top: `${(dragPreview?.id === edit.id ? dragPreview.y : edit.y) * 100}%`, color: edit.color, fontSize: `${editorFontSize}px`, fontFamily: /times|georgia|serif/i.test(edit.font ?? "") ? "Georgia, serif" : /courier|mono|consolas/i.test(edit.font ?? "") ? "monospace" : "Arial, sans-serif", fontWeight: edit.bold ? 700 : 400 }}
+                              onPointerDown={(event) => beginTextDrag(event, edit)}
+                              onPointerMove={(event) => moveTextDrag(event, edit)}
+                              onPointerUp={(event) => endTextDrag(event, edit)}
+                              onPointerCancel={(event) => endTextDrag(event, edit)}
+                              onLostPointerCapture={(event) => endTextDrag(event, edit)}
+                              onClick={() => { setSelectedId(edit.id); setMode("select"); }}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Select and drag text: ${edit.text}`}
+                              onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedId(edit.id); } }}
+                            >{edit.text}</div>}
+                            {selectedId === edit.id && renderResizeHandles(edit, {
+                              left: `${(dragPreview?.id === edit.id ? dragPreview.x : edit.x) * 100}%`,
+                              top: `${(dragPreview?.id === edit.id ? dragPreview.y : edit.y) * 100}%`,
+                              width: `${textBoxWidth}%`,
+                              height: `${textBoxHeight}px`,
+                            })}
+                          </Fragment>
                         ) : edit.kind === "cover" ? (
                           <button
                             key={edit.id}
@@ -1114,7 +1374,7 @@ export default function PdfEditor() {
                             onClick={() => { setSelectedId(edit.id); setMode("select"); }}
                           />
                         ) : null
-                      ))}
+                      })}
                       {dragCover && <div className={styles.coverPreview} style={{ left: `${dragCover.x * 100}%`, top: `${dragCover.y * 100}%`, width: `${dragCover.width * 100}%`, height: `${dragCover.height * 100}%` }} />}
                     </div>
                   </div>
@@ -1161,7 +1421,7 @@ export default function PdfEditor() {
                     </label>
                   </>}
                 </div>}
-                <p className={styles.toolHint}>{editingExistingText ? "Original PDF styling is preserved. Longer replacement text may not fit." : mode === "text" ? "Tap a blank area to place text. Drag the text box to move it." : mode === "move" ? "Drag a detected text, image, or vector object. Its original styling and appearance are retained." : mode === "erase" ? "Tap a detected PDF object to remove it. Drag blank space to add a visual cover; hidden content remains in the file." : selectedEdit ? "Tap to edit added text or drag the text box to move it." : visibleTextRuns.length ? "Tap existing text to edit it directly on the page." : "No selectable text found on this page. It may be a scan; use Add text or Erase instead."}</p>
+                <p className={styles.toolHint}>{editingExistingText ? "Original PDF styling is preserved. Longer replacement text may not fit." : mode === "text" ? "Tap a blank area to place text. Drag the text box to move it; use its corner dots to resize." : mode === "move" ? "Drag a detected text, image, or vector object. Use its corner dots to resize; appearance is retained." : mode === "erase" ? "Tap a detected PDF object to remove it. Drag blank space to add a visual cover; hidden content remains in the file." : selectedEdit ? "Tap to edit added text or drag the text box to move it. Use its corner dots to resize." : visibleTextRuns.length ? "Tap existing text to edit it directly on the page." : "No selectable text found on this page. It may be a scan; use Add text or Erase instead."}</p>
                 {pageObjectsError && <p className={styles.error} role="status">{pageObjectsError}</p>}
                 {selectedEdit && <div className={styles.selectedActions}>
                   {(selectedEdit.kind === "text" || selectedEdit.kind === "replace" || selectedEdit.kind === "move") && <div className={styles.nudgeControls} aria-label="Move selected item">
