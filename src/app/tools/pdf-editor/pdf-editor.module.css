@@ -30,6 +30,9 @@
 .fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
 .fileHint { margin-top: 13px; color: #77736d; font-size: 8px; }
 .error { margin: 16px 0 0; color: #ff786f; font-size: 12px; line-height: 1.5; }
+.diagnostics { margin: 10px 0 0; padding: 12px; border: 1px solid #343434; color: #aaa69e; font-size: 11px; }
+.diagnostics summary { color: #f3f1eb; font-weight: 700; cursor: pointer; }
+.diagnostics pre { max-height: 260px; margin: 10px 0 0; overflow: auto; color: #d8d4cc; font: 10px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; -webkit-user-select: text; }
 
 .editorShell { border: 1px solid #2f2f2f; background: #0c0c0c; }
 .documentBar { display: flex; min-height: 76px; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #292929; }

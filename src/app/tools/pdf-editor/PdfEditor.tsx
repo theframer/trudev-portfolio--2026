@@ -182,6 +182,7 @@ export default function PdfEditor() {
   const objectDragRef = useRef<{ objectIndex: number; start: { x: number; y: number }; offsetX: number; offsetY: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [renderDiagnostics, setRenderDiagnostics] = useState("");
 
   const pageCount = document?.numPages ?? 0;
   const renderDocument = previewDocument ?? document;
@@ -346,9 +347,11 @@ export default function PdfEditor() {
     let renderTask: { cancel: () => void; promise: Promise<void> } | undefined;
 
     async function renderPage() {
+      let stage = "Opening the selected page";
       try {
         const pdfPage = await activeDocument!.getPage(page);
         if (cancelled || !canvasRef.current || !stageRef.current) return;
+        stage = "Calculating the page size";
         const baseViewport = pdfPage.getViewport({ scale: 1 });
         setPageSize({ width: baseViewport.width, height: baseViewport.height });
         const availableWidth = stageWidth || stageRef.current.clientWidth;
@@ -356,6 +359,7 @@ export default function PdfEditor() {
         const width = Math.min(availableWidth, 860);
         const viewport = pdfPage.getViewport({ scale: width / baseViewport.width });
         setPageScale(width / baseViewport.width);
+        stage = "Reading the page text and fonts";
         const textContent = await pdfPage.getTextContent();
         const extractedRuns = textContent.items.flatMap((item, index) => {
           if (!("str" in item) || !item.str.trim()) return [];
@@ -390,6 +394,7 @@ export default function PdfEditor() {
         canvas.style.width = `${viewport.width}px`;
         canvas.style.height = `${viewport.height}px`;
         setCanvasHeight(viewport.height);
+        stage = "Starting the PDF canvas renderer";
         const previousRenderTask = activeRenderTaskRef.current;
         if (previousRenderTask) {
           previousRenderTask.cancel();
@@ -401,6 +406,7 @@ export default function PdfEditor() {
           viewport: pdfPage.getViewport({ scale: (width / baseViewport.width) * ratio }),
         });
         activeRenderTaskRef.current = renderTask;
+        stage = "Drawing PDF content to the screen";
         try {
           await renderTask.promise;
         } finally {
@@ -408,8 +414,36 @@ export default function PdfEditor() {
         }
       } catch (cause) {
         if (!cancelled && !(cause instanceof Error && cause.name === "RenderingCancelledException")) {
-          const detail = cause instanceof Error ? cause.message : "Unknown PDF rendering error.";
-          setError(`The PDF opened, but its page could not be rendered: ${detail}`);
+          const errorObject = cause && typeof cause === "object" ? cause as { name?: unknown; message?: unknown; stack?: unknown } : null;
+          const detail = cause instanceof Error
+            ? cause.message
+            : typeof cause === "string"
+              ? cause
+              : String(errorObject?.message ?? cause ?? "Unknown PDF rendering error.");
+          const canvas = window.document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          const diagnostics = {
+            stage,
+            errorName: String(errorObject?.name ?? "Unknown"),
+            error: detail,
+            stack: typeof errorObject?.stack === "string" ? errorObject.stack.slice(0, 3000) : "Not provided by this browser",
+            browser: navigator.userAgent,
+            platform: navigator.platform,
+            screen: `${window.screen.width}x${window.screen.height}`,
+            devicePixelRatio: window.devicePixelRatio,
+            capabilities: {
+              promiseWithResolvers: typeof (Promise as PromiseConstructor & { withResolvers?: unknown }).withResolvers === "function",
+              arrayFindLast: typeof Array.prototype.findLast === "function",
+              canvas2d: Boolean(context),
+              canvasResetTransform: typeof context?.resetTransform === "function",
+              canvasSetTransform: typeof context?.setTransform === "function",
+              offscreenCanvas: typeof OffscreenCanvas === "function",
+            },
+          };
+          const diagnosticText = JSON.stringify(diagnostics, null, 2);
+          console.error("[TRUDEV PDF Editor] Page render failed", diagnostics, cause);
+          setRenderDiagnostics(diagnosticText);
+          setError(`The PDF opened, but rendering failed while ${stage.toLowerCase()}: ${detail}`);
         }
       }
     }
@@ -439,6 +473,7 @@ export default function PdfEditor() {
   async function loadFile(file?: File) {
     if (!file) return;
     setError("");
+    setRenderDiagnostics("");
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
       setError("Choose a PDF file to start editing.");
       return;
@@ -888,6 +923,10 @@ export default function PdfEditor() {
             <input ref={inputRef} className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(event) => { void loadFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
             <span className={styles.fileHint}>PDF ONLY &middot; MAX 25 MB</span>
             {error && <p className={styles.error} role="alert">{error}</p>}
+            {renderDiagnostics && <details className={styles.diagnostics} open>
+              <summary>PDF render diagnostics (send this to support)</summary>
+              <pre>{renderDiagnostics}</pre>
+            </details>}
           </section>
         ) : (
           <section className={styles.editorShell} aria-label="PDF editor">
