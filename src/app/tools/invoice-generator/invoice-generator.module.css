@@ -84,10 +84,13 @@
 .formSection input:focus,
 .formSection select:focus,
 .formSection textarea:focus { outline: 1px solid #ff4a3e; outline-offset: 1px; }
+.formSection input[aria-invalid="true"] { border-color: #ff675d; }
+.fieldError { color: #ff675d; font-size: 10px; line-height: 1.3; }
 .itemHeaders,
 .itemRow { display: grid; grid-template-columns: minmax(0, 1fr) 70px minmax(85px, .45fr) 30px; align-items: center; gap: 8px; }
 .itemHeaders { margin-bottom: 8px; color: #8b8881; font-size: 9px; letter-spacing: .08em; }
 .itemRow { margin-bottom: 8px; }
+.itemField { display: grid; gap: 4px; min-width: 0; }
 .itemRow input { padding: 9px 8px; }
 .removeButton { height: 36px; border: 0; color: #aaa69e; background: transparent; font-size: 21px; cursor: pointer; }
 .removeButton:disabled { opacity: .35; cursor: default; }
@@ -141,6 +144,7 @@
   .itemHeaders,
   .itemRow { grid-template-columns: minmax(0, 1fr) 48px minmax(70px, .6fr) 22px; gap: 5px; }
   .itemRow input { padding: 8px 5px; font-size: 11px; }
+  .itemField .fieldError { font-size: 8px; }
   .preview { padding: 22px 16px; }
   .previewItemHeader,
   .previewItem { grid-template-columns: minmax(0, 1fr) 28px minmax(58px, .5fr) minmax(62px, .55fr); gap: 4px; }

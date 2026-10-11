@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import CustomCursor from "@/components/CustomCursor";
 import styles from "./invoice-generator.module.css";
@@ -60,6 +60,14 @@ export default function InvoiceGenerator() {
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
+  const [showValidation, setShowValidation] = useState(false);
+  const businessSectionRef = useRef<HTMLDetailsElement>(null);
+  const invoiceSectionRef = useRef<HTMLDetailsElement>(null);
+  const itemsSectionRef = useRef<HTMLDetailsElement>(null);
+
+  const businessMissing = showValidation && !details.business.trim();
+  const issueDateMissing = showValidation && !details.issueDate.trim();
+  const customerMissing = showValidation && !details.customer.trim();
 
   const totals = useMemo(() => {
     const subtotal = items.reduce(
@@ -92,7 +100,15 @@ export default function InvoiceGenerator() {
       );
 
     if (hasMissingRequiredField) {
+      setShowValidation(true);
       setValidationMessage("Mandatory field found empty. Please try again.");
+      if (!details.business.trim() && businessSectionRef.current) businessSectionRef.current.open = true;
+      if ((!details.issueDate.trim() || !details.customer.trim()) && invoiceSectionRef.current) {
+        invoiceSectionRef.current.open = true;
+      }
+      if (items.some((item) => !item.description.trim() || !item.quantity.trim() || !item.price.trim())) {
+        if (itemsSectionRef.current) itemsSectionRef.current.open = true;
+      }
       return;
     }
 
@@ -137,7 +153,7 @@ export default function InvoiceGenerator() {
 
         <div className={styles.workspace}>
           <section className={styles.editor} aria-label="Invoice details form">
-            <details className={styles.formSection} open>
+            <details className={styles.formSection} open ref={businessSectionRef}>
               <summary className={styles.sectionSummary}>
                 <span className={styles.sectionNumber}>01</span>
                 <span className={styles.sectionTitle}>Your business</span>
@@ -149,7 +165,8 @@ export default function InvoiceGenerator() {
               </summary>
               <div className={styles.fieldGrid}>
                 <label className={styles.wideField}>Business or your name
-                  <input value={details.business} onChange={(event) => updateDetails("business", event.target.value)} placeholder="Your business name" required />
+                  <input value={details.business} onChange={(event) => updateDetails("business", event.target.value)} placeholder="Your business name" required aria-invalid={businessMissing} aria-describedby={businessMissing ? "business-error" : undefined} />
+                  {businessMissing && <span className={styles.fieldError} id="business-error">This field is required.</span>}
                 </label>
                 <label className={styles.wideField}>Instagram Handle
                   <input value={details.instagram} onChange={(event) => updateDetails("instagram", event.target.value)} placeholder="instagram_handle or @instagram_handle" autoComplete="off" />
@@ -157,7 +174,7 @@ export default function InvoiceGenerator() {
               </div>
             </details>
 
-            <details className={styles.formSection}>
+            <details className={styles.formSection} ref={invoiceSectionRef}>
               <summary className={styles.sectionSummary}>
                 <span className={styles.sectionNumber}>02</span>
                 <span className={styles.sectionTitle}>Invoice details</span>
@@ -172,10 +189,12 @@ export default function InvoiceGenerator() {
                   <input value={details.invoiceNumber} onChange={(event) => updateDetails("invoiceNumber", event.target.value)} placeholder="INV-001" />
                 </label>
                 <label>Issue date
-                  <input type="date" value={details.issueDate} onChange={(event) => updateDetails("issueDate", event.target.value)} required />
+                  <input type="date" value={details.issueDate} onChange={(event) => updateDetails("issueDate", event.target.value)} required aria-invalid={issueDateMissing} aria-describedby={issueDateMissing ? "issue-date-error" : undefined} />
+                  {issueDateMissing && <span className={styles.fieldError} id="issue-date-error">This field is required.</span>}
                 </label>
                 <label className={styles.wideField}>Bill to / customer name
-                  <input value={details.customer} onChange={(event) => updateDetails("customer", event.target.value)} placeholder="Customer name" required />
+                  <input value={details.customer} onChange={(event) => updateDetails("customer", event.target.value)} placeholder="Customer name" required aria-invalid={customerMissing} aria-describedby={customerMissing ? "customer-error" : undefined} />
+                  {customerMissing && <span className={styles.fieldError} id="customer-error">This field is required.</span>}
                 </label>
                 <label>Currency
                   <select value={details.currency} onChange={(event) => updateDetails("currency", event.target.value)}>
@@ -188,7 +207,7 @@ export default function InvoiceGenerator() {
               </div>
             </details>
 
-            <details className={styles.formSection}>
+            <details className={styles.formSection} ref={itemsSectionRef}>
               <summary className={styles.sectionSummary}>
                 <span className={styles.sectionNumber}>03</span>
                 <span className={styles.sectionTitle}>Items</span>
@@ -204,12 +223,21 @@ export default function InvoiceGenerator() {
               <div className={styles.itemList}>
                 {items.map((item, index) => (
                   <div className={styles.itemRow} key={item.id}>
-                    <label className={styles.srOnly} htmlFor={`item-description-${item.id}`}>Item {index + 1} description</label>
-                    <input id={`item-description-${item.id}`} value={item.description} onChange={(event) => updateItem(item.id, "description", event.target.value)} placeholder="Product or service" required />
-                    <label className={styles.srOnly} htmlFor={`item-quantity-${item.id}`}>Item {index + 1} quantity</label>
-                    <input id={`item-quantity-${item.id}`} type="number" min="0" step="0.01" value={item.quantity} onChange={(event) => updateItem(item.id, "quantity", event.target.value)} required />
-                    <label className={styles.srOnly} htmlFor={`item-price-${item.id}`}>Item {index + 1} price</label>
-                    <input id={`item-price-${item.id}`} type="number" min="0" step="0.01" value={item.price} onChange={(event) => updateItem(item.id, "price", event.target.value)} placeholder="0.00" required />
+                    <div className={styles.itemField}>
+                      <label className={styles.srOnly} htmlFor={`item-description-${item.id}`}>Item {index + 1} description</label>
+                      <input id={`item-description-${item.id}`} value={item.description} onChange={(event) => updateItem(item.id, "description", event.target.value)} placeholder="Product or service" required aria-invalid={showValidation && !item.description.trim()} aria-describedby={showValidation && !item.description.trim() ? `item-description-error-${item.id}` : undefined} />
+                      {showValidation && !item.description.trim() && <span className={styles.fieldError} id={`item-description-error-${item.id}`}>Required</span>}
+                    </div>
+                    <div className={styles.itemField}>
+                      <label className={styles.srOnly} htmlFor={`item-quantity-${item.id}`}>Item {index + 1} quantity</label>
+                      <input id={`item-quantity-${item.id}`} type="number" min="0" step="0.01" value={item.quantity} onChange={(event) => updateItem(item.id, "quantity", event.target.value)} required aria-invalid={showValidation && !item.quantity.trim()} aria-describedby={showValidation && !item.quantity.trim() ? `item-quantity-error-${item.id}` : undefined} />
+                      {showValidation && !item.quantity.trim() && <span className={styles.fieldError} id={`item-quantity-error-${item.id}`}>Required</span>}
+                    </div>
+                    <div className={styles.itemField}>
+                      <label className={styles.srOnly} htmlFor={`item-price-${item.id}`}>Item {index + 1} price</label>
+                      <input id={`item-price-${item.id}`} type="number" min="0" step="0.01" value={item.price} onChange={(event) => updateItem(item.id, "price", event.target.value)} placeholder="0.00" required aria-invalid={showValidation && !item.price.trim()} aria-describedby={showValidation && !item.price.trim() ? `item-price-error-${item.id}` : undefined} />
+                      {showValidation && !item.price.trim() && <span className={styles.fieldError} id={`item-price-error-${item.id}`}>Required</span>}
+                    </div>
                     <button type="button" className={styles.removeButton} aria-label={`Remove item ${index + 1}`} disabled={items.length === 1} onClick={() => setItems((current) => current.filter((row) => row.id !== item.id))}>&#215;</button>
                   </div>
                 ))}
