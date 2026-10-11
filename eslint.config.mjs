@@ -3,5 +3,5 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 
 export default defineConfig([
   ...nextVitals,
-  globalIgnores([".next/**", "out/**", "build/**", "node_modules/**", "next-env.d.ts"])
+  globalIgnores([".next/**", "out/**", "build/**", "node_modules/**", "next-env.d.ts", "public/pdfjs-cmaps/**", "public/pdfjs-iccs/**", "public/pdfjs-standard-fonts/**", "public/pdfjs-wasm/**"])
 ]);

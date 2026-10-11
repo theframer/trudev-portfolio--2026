@@ -2,6 +2,10 @@ node_modules/
 .next/
 out/
 public/pdfjs-worker.mjs
+public/pdfjs-cmaps/
+public/pdfjs-iccs/
+public/pdfjs-standard-fonts/
+public/pdfjs-wasm/
 .env*
 !.env.example
 *.log

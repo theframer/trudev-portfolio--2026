@@ -43,6 +43,7 @@ type PdfTextRun = {
 };
 
 type EditHistory = { past: PdfEdit[][]; present: PdfEdit[]; future: PdfEdit[][] };
+let pdfJsRuntimeInfo: { version: string; workerPath: string; basePath: string } | null = null;
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
@@ -58,7 +59,23 @@ async function loadPdfJs() {
   const workerBootstrapUrl = new URL(`${basePath}/pdfjs-worker-compat.mjs`, window.location.origin);
   workerBootstrapUrl.searchParams.set("src", `${basePath}/pdfjs-worker.mjs`);
   pdfjs.GlobalWorkerOptions.workerSrc = workerBootstrapUrl.toString();
+  pdfJsRuntimeInfo = { version: pdfjs.version, workerPath: workerBootstrapUrl.pathname, basePath };
   return pdfjs;
+}
+
+async function openPdfDocument(bytes: Uint8Array) {
+  const pdfjs = await loadPdfJs();
+  const basePath = pdfJsRuntimeInfo?.basePath ?? "";
+  const assetUrl = (directory: string) => new URL(`${basePath}/pdfjs-${directory}/`, window.location.origin).toString();
+  return pdfjs.getDocument({
+    data: new Uint8Array(bytes),
+    cMapUrl: assetUrl("cmaps"),
+    cMapPacked: true,
+    iccUrl: assetUrl("iccs"),
+    standardFontDataUrl: assetUrl("standard-fonts"),
+    wasmUrl: assetUrl("wasm"),
+    useWorkerFetch: true,
+  }).promise;
 }
 
 function normalizePdfText(value: string) {
@@ -281,8 +298,7 @@ export default function PdfEditor() {
             originalBounds: edit.sourceBounds!,
           }))) : fileBytes;
           if (replacementEdits.length) {
-            const verifyPdfjs = await loadPdfJs();
-            const textPreview = await verifyPdfjs.getDocument({ data: new Uint8Array(previewBytes) }).promise;
+            const textPreview = await openPdfDocument(previewBytes);
             try { await verifyReplacementText(textPreview, replacementEdits); }
             finally { await textPreview.cleanup(); }
           }
@@ -299,8 +315,7 @@ export default function PdfEditor() {
           }));
           previewBytes = await applyPdfiumObjectChanges(previewBytes, pageObjectChanges);
           if (cancelled) return;
-          const pdfjs = await loadPdfJs();
-          const nextPreview = await pdfjs.getDocument({ data: new Uint8Array(previewBytes) }).promise;
+          const nextPreview = await openPdfDocument(previewBytes);
           if (cancelled) {
             void nextPreview.cleanup();
             return;
@@ -348,7 +363,11 @@ export default function PdfEditor() {
 
     async function renderPage() {
       let stage = "Opening the selected page";
+      let textItemIndex = -1;
+      let currentFontName = "Not reached";
       try {
+        setError("");
+        setRenderDiagnostics("");
         const pdfPage = await activeDocument!.getPage(page);
         if (cancelled || !canvasRef.current || !stageRef.current) return;
         stage = "Calculating the page size";
@@ -359,10 +378,13 @@ export default function PdfEditor() {
         const width = Math.min(availableWidth, 860);
         const viewport = pdfPage.getViewport({ scale: width / baseViewport.width });
         setPageScale(width / baseViewport.width);
-        stage = "Reading the page text and fonts";
+        stage = "Requesting text content from the PDF.js worker";
         const textContent = await pdfPage.getTextContent();
+        stage = "Mapping extracted text items to their font styles";
         const extractedRuns = textContent.items.flatMap((item, index) => {
+          textItemIndex = index;
           if (!("str" in item) || !item.str.trim()) return [];
+          currentFontName = item.fontName;
           const [left, baseline] = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
           const itemWidth = item.width * (width / baseViewport.width);
           const itemHeight = item.height * (width / baseViewport.width);
@@ -424,6 +446,10 @@ export default function PdfEditor() {
           const context = canvas.getContext("2d");
           const diagnostics = {
             stage,
+            page,
+            textItemIndex,
+            currentFontName,
+            pdfjs: pdfJsRuntimeInfo,
             errorName: String(errorObject?.name ?? "Unknown"),
             error: detail,
             stack: typeof errorObject?.stack === "string" ? errorObject.stack.slice(0, 3000) : "Not provided by this browser",
@@ -485,8 +511,7 @@ export default function PdfEditor() {
     setBusy(true);
     try {
       const bytes = new Uint8Array(await file.arrayBuffer());
-      const pdfjs = await loadPdfJs();
-      const loaded = await pdfjs.getDocument({ data: new Uint8Array(bytes) }).promise;
+      const loaded = await openPdfDocument(bytes);
       setDocument(loaded);
       setPreviewDocument(null);
       setPreviewError("");
@@ -802,8 +827,7 @@ export default function PdfEditor() {
         })))
         : fileBytes;
       if (replacementEdits.length) {
-        const verifyPdfjs = await loadPdfJs();
-        const textPreview = await verifyPdfjs.getDocument({ data: new Uint8Array(pdfiumBytes) }).promise;
+        const textPreview = await openPdfDocument(pdfiumBytes);
         try { await verifyReplacementText(textPreview, replacementEdits); }
         finally { await textPreview.cleanup(); }
       }
@@ -867,8 +891,7 @@ export default function PdfEditor() {
         }
       }
       const result = await pdf.save();
-      const pdfjs = await loadPdfJs();
-      const exportedPdfCheck = await pdfjs.getDocument({ data: new Uint8Array(result) }).promise;
+      const exportedPdfCheck = await openPdfDocument(result);
       await exportedPdfCheck.cleanup();
       const url = URL.createObjectURL(new Blob([result as BlobPart], { type: "application/pdf" }));
       const link = window.document.createElement("a");
@@ -923,10 +946,6 @@ export default function PdfEditor() {
             <input ref={inputRef} className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(event) => { void loadFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
             <span className={styles.fileHint}>PDF ONLY &middot; MAX 25 MB</span>
             {error && <p className={styles.error} role="alert">{error}</p>}
-            {renderDiagnostics && <details className={styles.diagnostics} open>
-              <summary>PDF render diagnostics (send this to support)</summary>
-              <pre>{renderDiagnostics}</pre>
-            </details>}
           </section>
         ) : (
           <section className={styles.editorShell} aria-label="PDF editor">
@@ -1149,6 +1168,10 @@ export default function PdfEditor() {
               </aside>
             </div>
             {error && <p className={styles.error} role="alert">{error}</p>}
+            {renderDiagnostics && <details className={styles.diagnostics} open>
+              <summary>PDF render diagnostics (send this to support)</summary>
+              <pre>{renderDiagnostics}</pre>
+            </details>}
           </section>
         )}
         <footer className={styles.footerNote}><span>TRUDEV / PDF EDITOR</span><span>LOCAL FILE &middot; YOUR CONTROL</span></footer>
