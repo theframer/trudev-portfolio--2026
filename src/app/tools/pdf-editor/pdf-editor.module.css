@@ -73,7 +73,7 @@
 .sourceText:hover, .sourceText:focus-visible { outline: 1px solid #ff4a3e; outline-offset: 0; }
 .sourceText.sourceTextSelected { outline: 1px solid #ff4a3e; outline-offset: 1px; box-shadow: 0 0 0 2px #ff4a3e33; }
 .replacementPatch { position: absolute; z-index: 2; background: #fff; pointer-events: none; }
-.inlineTextEditor { position: absolute; z-index: 6; display: block; min-width: 28px; margin: 0; padding: 0 2px; border: 1px solid #ff4439; border-radius: 0; color: #171717; background: #fff; font: inherit; line-height: 1.05; white-space: pre; overflow: hidden; resize: none; outline: 2px solid #ff443933; outline-offset: 1px; touch-action: manipulation; user-select: text; }
+.inlineTextEditor { position: absolute; z-index: 6; display: block; box-sizing: border-box; min-width: 28px; margin: 0; padding: 0 2px; border: 1px solid #ff4439; border-radius: 0; color: #171717; background: #fff; font: inherit; line-height: 1.05; white-space: pre; overflow: hidden; resize: none; outline: 2px solid #ff443933; outline-offset: 1px; touch-action: manipulation; user-select: text; }
 .inlineTextEditor:focus { outline: 2px solid #ff4439; outline-offset: 1px; }
 .inlineReplacementEditor { touch-action: none; }
 .inlineAddedTextEditor { min-height: 30px; padding: 4px 6px; border-style: dashed; background: #fffffffa; line-height: 1.2; white-space: pre-wrap; overflow-wrap: anywhere; cursor: grab; touch-action: none; }
