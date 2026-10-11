@@ -1,6 +1,7 @@
 node_modules/
 .next/
 out/
+public/pdfjs-worker.mjs
 .env*
 !.env.example
 *.log

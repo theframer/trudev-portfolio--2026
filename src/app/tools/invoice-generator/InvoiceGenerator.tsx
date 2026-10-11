@@ -120,8 +120,11 @@ export default function InvoiceGenerator() {
 
         <div className={styles.workspace}>
           <section className={styles.editor} aria-label="Invoice details form">
-            <section className={styles.formSection}>
-              <h2><span>01</span> Your business</h2>
+            <details className={styles.formSection} open>
+              <summary className={styles.sectionSummary}>
+                <span className={styles.sectionNumber}>01</span>
+                <span className={styles.sectionTitle}>Your business</span>
+              </summary>
               <div className={styles.fieldGrid}>
                 <label className={styles.wideField}>Business or your name
                   <input value={details.business} onChange={(event) => updateDetails("business", event.target.value)} placeholder="Your business name" />
@@ -130,10 +133,13 @@ export default function InvoiceGenerator() {
                   <input value={details.instagram} onChange={(event) => updateDetails("instagram", event.target.value)} placeholder="Nike or @Nike" autoComplete="off" />
                 </label>
               </div>
-            </section>
+            </details>
 
-            <section className={styles.formSection}>
-              <h2><span>02</span> Invoice details</h2>
+            <details className={styles.formSection} open>
+              <summary className={styles.sectionSummary}>
+                <span className={styles.sectionNumber}>02</span>
+                <span className={styles.sectionTitle}>Invoice details</span>
+              </summary>
               <div className={styles.fieldGrid}>
                 <label>Invoice number
                   <input value={details.invoiceNumber} onChange={(event) => updateDetails("invoiceNumber", event.target.value)} placeholder="INV-001" />
@@ -153,10 +159,13 @@ export default function InvoiceGenerator() {
                   <input type="number" min="0" step="0.01" value={details.taxRate} onChange={(event) => updateDetails("taxRate", event.target.value)} />
                 </label>
               </div>
-            </section>
+            </details>
 
-            <section className={styles.formSection}>
-              <h2><span>03</span> Items</h2>
+            <details className={styles.formSection} open>
+              <summary className={styles.sectionSummary}>
+                <span className={styles.sectionNumber}>03</span>
+                <span className={styles.sectionTitle}>Items</span>
+              </summary>
               <div className={styles.itemHeaders} aria-hidden="true">
                 <span>Description</span><span>Qty</span><span>Price</span><span />
               </div>
@@ -174,14 +183,17 @@ export default function InvoiceGenerator() {
                 ))}
               </div>
               <button type="button" className={styles.addButton} onClick={() => setItems((current) => [...current, { id: Math.max(0, ...current.map((item) => item.id)) + 1, description: "", quantity: "1", price: "" }])}>+ Add item</button>
-            </section>
+            </details>
 
-            <section className={styles.formSection}>
-              <h2><span>04</span> Note</h2>
+            <details className={styles.formSection} open>
+              <summary className={styles.sectionSummary}>
+                <span className={styles.sectionNumber}>04</span>
+                <span className={styles.sectionTitle}>Notes</span>
+              </summary>
               <label className={styles.wideField}>Payment details or a short note
                 <textarea rows={3} value={details.notes} onChange={(event) => updateDetails("notes", event.target.value)} placeholder="Optional details for your customer" />
               </label>
-            </section>
+            </details>
           </section>
 
           <div className={styles.previewColumn}>

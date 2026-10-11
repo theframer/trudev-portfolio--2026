@@ -46,6 +46,21 @@ type EditHistory = { past: PdfEdit[][]; present: PdfEdit[]; future: PdfEdit[][] 
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
+async function loadPdfJs() {
+  await import("./pdfjs-compat");
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const nextScript = Array.from(document.scripts).find((script) =>
+    new URL(script.src, window.location.href).pathname.includes("/_next/static/chunks/"),
+  );
+  const basePath = nextScript
+    ? new URL(nextScript.src, window.location.href).pathname.split("/_next/")[0]
+    : "";
+  const workerBootstrapUrl = new URL(`${basePath}/pdfjs-worker-compat.mjs`, window.location.origin);
+  workerBootstrapUrl.searchParams.set("src", `${basePath}/pdfjs-worker.mjs`);
+  pdfjs.GlobalWorkerOptions.workerSrc = workerBootstrapUrl.toString();
+  return pdfjs;
+}
+
 function normalizePdfText(value: string) {
   return value.normalize("NFKC").replace(/\s+/g, "").toLocaleLowerCase();
 }
@@ -121,6 +136,7 @@ export default function PdfEditor() {
   const stageRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const activeRenderTaskRef = useRef<{ cancel: () => void; promise: Promise<void> } | null>(null);
   const nextIdRef = useRef(1);
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
   const [previewDocument, setPreviewDocument] = useState<PDFDocumentProxy | null>(null);
@@ -264,8 +280,7 @@ export default function PdfEditor() {
             originalBounds: edit.sourceBounds!,
           }))) : fileBytes;
           if (replacementEdits.length) {
-            const verifyPdfjs = await import("pdfjs-dist");
-            verifyPdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+            const verifyPdfjs = await loadPdfJs();
             const textPreview = await verifyPdfjs.getDocument({ data: new Uint8Array(previewBytes) }).promise;
             try { await verifyReplacementText(textPreview, replacementEdits); }
             finally { await textPreview.cleanup(); }
@@ -283,11 +298,7 @@ export default function PdfEditor() {
           }));
           previewBytes = await applyPdfiumObjectChanges(previewBytes, pageObjectChanges);
           if (cancelled) return;
-          const pdfjs = await import("pdfjs-dist");
-          pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-            "pdfjs-dist/build/pdf.worker.min.mjs",
-            import.meta.url,
-          ).toString();
+          const pdfjs = await loadPdfJs();
           const nextPreview = await pdfjs.getDocument({ data: new Uint8Array(previewBytes) }).promise;
           if (cancelled) {
             void nextPreview.cleanup();
@@ -370,6 +381,7 @@ export default function PdfEditor() {
           bold: /bold|black|semibold/i.test(`${item.fontName} ${rawFamily}`),
           } satisfies PdfTextRun];
         });
+        if (cancelled) return;
         setTextRuns((current) => [...current.filter((run) => run.page !== page), ...extractedRuns]);
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
         const canvas = canvasRef.current;
@@ -378,11 +390,22 @@ export default function PdfEditor() {
         canvas.style.width = `${viewport.width}px`;
         canvas.style.height = `${viewport.height}px`;
         setCanvasHeight(viewport.height);
+        const previousRenderTask = activeRenderTaskRef.current;
+        if (previousRenderTask) {
+          previousRenderTask.cancel();
+          await previousRenderTask.promise.catch(() => undefined);
+        }
+        if (cancelled || !canvasRef.current) return;
         renderTask = pdfPage.render({
           canvas,
           viewport: pdfPage.getViewport({ scale: (width / baseViewport.width) * ratio }),
         });
-        await renderTask.promise;
+        activeRenderTaskRef.current = renderTask;
+        try {
+          await renderTask.promise;
+        } finally {
+          if (activeRenderTaskRef.current === renderTask) activeRenderTaskRef.current = null;
+        }
       } catch (cause) {
         if (!cancelled && !(cause instanceof Error && cause.name === "RenderingCancelledException")) {
           const detail = cause instanceof Error ? cause.message : "Unknown PDF rendering error.";
@@ -427,11 +450,7 @@ export default function PdfEditor() {
     setBusy(true);
     try {
       const bytes = new Uint8Array(await file.arrayBuffer());
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-        "pdfjs-dist/build/pdf.worker.min.mjs",
-        import.meta.url,
-      ).toString();
+      const pdfjs = await loadPdfJs();
       const loaded = await pdfjs.getDocument({ data: new Uint8Array(bytes) }).promise;
       setDocument(loaded);
       setPreviewDocument(null);
@@ -448,8 +467,9 @@ export default function PdfEditor() {
       setSelectedSourceRun(null);
       setSourceTarget(null);
       setMode("select");
-    } catch {
-      setError("We couldnâ€™t open that PDF. It may be password-protected or damaged.");
+    } catch (cause) {
+      const detail = cause instanceof Error ? cause.message : "Unknown PDF loading error.";
+      setError(`We could not open that PDF: ${detail}`);
     } finally {
       setBusy(false);
     }
@@ -747,8 +767,7 @@ export default function PdfEditor() {
         })))
         : fileBytes;
       if (replacementEdits.length) {
-        const verifyPdfjs = await import("pdfjs-dist");
-        verifyPdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+        const verifyPdfjs = await loadPdfJs();
         const textPreview = await verifyPdfjs.getDocument({ data: new Uint8Array(pdfiumBytes) }).promise;
         try { await verifyReplacementText(textPreview, replacementEdits); }
         finally { await textPreview.cleanup(); }
@@ -813,11 +832,7 @@ export default function PdfEditor() {
         }
       }
       const result = await pdf.save();
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-        "pdfjs-dist/build/pdf.worker.min.mjs",
-        import.meta.url,
-      ).toString();
+      const pdfjs = await loadPdfJs();
       const exportedPdfCheck = await pdfjs.getDocument({ data: new Uint8Array(result) }).promise;
       await exportedPdfCheck.cleanup();
       const url = URL.createObjectURL(new Blob([result as BlobPart], { type: "application/pdf" }));
