@@ -59,6 +59,7 @@ export default function InvoiceGenerator() {
   ]);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState("");
+  const [validationMessage, setValidationMessage] = useState("");
 
   const totals = useMemo(() => {
     const subtotal = items.reduce(
@@ -70,16 +71,32 @@ export default function InvoiceGenerator() {
   }, [details.taxRate, items]);
 
   function updateDetails(field: keyof InvoiceDetails, value: string) {
+    setValidationMessage("");
     setDetails((current) => ({ ...current, [field]: value }));
   }
 
   function updateItem(id: number, field: keyof Omit<InvoiceItem, "id">, value: string) {
+    setValidationMessage("");
     setItems((current) => current.map((item) =>
       item.id === id ? { ...item, [field]: value } : item,
     ));
   }
 
   async function downloadInvoice() {
+    const hasMissingRequiredField =
+      !details.business.trim() ||
+      !details.issueDate.trim() ||
+      !details.customer.trim() ||
+      items.some((item) =>
+        !item.description.trim() || !item.quantity.trim() || !item.price.trim(),
+      );
+
+    if (hasMissingRequiredField) {
+      setValidationMessage("Mandatory field found empty. Please try again.");
+      return;
+    }
+
+    setValidationMessage("");
     setDownloading(true);
     setDownloadError("");
     try {
@@ -132,10 +149,10 @@ export default function InvoiceGenerator() {
               </summary>
               <div className={styles.fieldGrid}>
                 <label className={styles.wideField}>Business or your name
-                  <input value={details.business} onChange={(event) => updateDetails("business", event.target.value)} placeholder="Your business name" />
+                  <input value={details.business} onChange={(event) => updateDetails("business", event.target.value)} placeholder="Your business name" required />
                 </label>
                 <label className={styles.wideField}>Instagram Handle
-                  <input value={details.instagram} onChange={(event) => updateDetails("instagram", event.target.value)} placeholder="Nike or @Nike" autoComplete="off" />
+                  <input value={details.instagram} onChange={(event) => updateDetails("instagram", event.target.value)} placeholder="instagram_handle or @instagram_handle" autoComplete="off" />
                 </label>
               </div>
             </details>
@@ -155,10 +172,10 @@ export default function InvoiceGenerator() {
                   <input value={details.invoiceNumber} onChange={(event) => updateDetails("invoiceNumber", event.target.value)} placeholder="INV-001" />
                 </label>
                 <label>Issue date
-                  <input type="date" value={details.issueDate} onChange={(event) => updateDetails("issueDate", event.target.value)} />
+                  <input type="date" value={details.issueDate} onChange={(event) => updateDetails("issueDate", event.target.value)} required />
                 </label>
                 <label className={styles.wideField}>Bill to / customer name
-                  <input value={details.customer} onChange={(event) => updateDetails("customer", event.target.value)} placeholder="Customer name" />
+                  <input value={details.customer} onChange={(event) => updateDetails("customer", event.target.value)} placeholder="Customer name" required />
                 </label>
                 <label>Currency
                   <select value={details.currency} onChange={(event) => updateDetails("currency", event.target.value)}>
@@ -188,11 +205,11 @@ export default function InvoiceGenerator() {
                 {items.map((item, index) => (
                   <div className={styles.itemRow} key={item.id}>
                     <label className={styles.srOnly} htmlFor={`item-description-${item.id}`}>Item {index + 1} description</label>
-                    <input id={`item-description-${item.id}`} value={item.description} onChange={(event) => updateItem(item.id, "description", event.target.value)} placeholder="Product or service" />
+                    <input id={`item-description-${item.id}`} value={item.description} onChange={(event) => updateItem(item.id, "description", event.target.value)} placeholder="Product or service" required />
                     <label className={styles.srOnly} htmlFor={`item-quantity-${item.id}`}>Item {index + 1} quantity</label>
-                    <input id={`item-quantity-${item.id}`} type="number" min="0" step="0.01" value={item.quantity} onChange={(event) => updateItem(item.id, "quantity", event.target.value)} />
+                    <input id={`item-quantity-${item.id}`} type="number" min="0" step="0.01" value={item.quantity} onChange={(event) => updateItem(item.id, "quantity", event.target.value)} required />
                     <label className={styles.srOnly} htmlFor={`item-price-${item.id}`}>Item {index + 1} price</label>
-                    <input id={`item-price-${item.id}`} type="number" min="0" step="0.01" value={item.price} onChange={(event) => updateItem(item.id, "price", event.target.value)} placeholder="0.00" />
+                    <input id={`item-price-${item.id}`} type="number" min="0" step="0.01" value={item.price} onChange={(event) => updateItem(item.id, "price", event.target.value)} placeholder="0.00" required />
                     <button type="button" className={styles.removeButton} aria-label={`Remove item ${index + 1}`} disabled={items.length === 1} onClick={() => setItems((current) => current.filter((row) => row.id !== item.id))}>&#215;</button>
                   </div>
                 ))}
@@ -257,6 +274,7 @@ export default function InvoiceGenerator() {
               {downloading ? "Preparing your PDF..." : "Download Invoice"}
               {!downloading && <span aria-hidden="true">&#8595;</span>}
             </button>
+            {validationMessage && <p className={styles.downloadError} role="alert" aria-live="polite">{validationMessage}</p>}
             {downloadError && <p className={styles.downloadError} role="alert">{downloadError}</p>}
           </div>
         </div>
