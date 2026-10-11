@@ -70,6 +70,7 @@
   width: 100%; min-width: 0; min-height: 43px; padding: 10px 11px; border: 1px solid #343434; border-radius: 0;
   color: #f3f1eb; background: #080808; font: inherit; font-size: 13px;
 }
+.formSection input[type="date"] { min-width: 0; max-width: 100%; padding-right: 6px; padding-left: 6px; font-size: 12px; }
 .formSection textarea { resize: vertical; }
 .formSection input:focus,
 .formSection select:focus,
@@ -124,7 +125,7 @@
   .backLink { min-height: 44px; padding: 0 12px; font-size: 10px; }
   .heading { padding: 54px 0 30px; }
   .formSection { padding: 18px 14px; }
-  .fieldGrid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .fieldGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .itemHeaders,
   .itemRow { grid-template-columns: minmax(0, 1fr) 48px minmax(70px, .6fr) 22px; gap: 5px; }
   .itemRow input { padding: 8px 5px; font-size: 11px; }

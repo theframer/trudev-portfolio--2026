@@ -138,11 +138,11 @@ export default function InvoiceGenerator() {
                 <label>Invoice number
                   <input value={details.invoiceNumber} onChange={(event) => updateDetails("invoiceNumber", event.target.value)} placeholder="INV-001" />
                 </label>
-                <label>Bill to
-                  <input value={details.customer} onChange={(event) => updateDetails("customer", event.target.value)} placeholder="Customer name" />
-                </label>
                 <label>Issue date
                   <input type="date" value={details.issueDate} onChange={(event) => updateDetails("issueDate", event.target.value)} />
+                </label>
+                <label className={styles.wideField}>Bill to / customer name
+                  <input value={details.customer} onChange={(event) => updateDetails("customer", event.target.value)} placeholder="Customer name" />
                 </label>
                 <label>Currency
                   <select value={details.currency} onChange={(event) => updateDetails("currency", event.target.value)}>
