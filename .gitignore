@@ -1,13 +1,41 @@
+# Dependencies
 node_modules/
+
+# Next.js build output
 .next/
 out/
+
+# PDF.js generated assets
 public/pdfjs-worker.mjs
 public/pdfjs-cmaps/
 public/pdfjs-iccs/
 public/pdfjs-standard-fonts/
 public/pdfjs-wasm/
+
+# Environment variables and secrets
 .env*
 !.env.example
+
+# Logs
 *.log
+
+# Operating system files
 .DS_Store
 Thumbs.db
+
+# Local QA screenshots and test scripts
+/hero-check.png
+/hero-current.png
+/hero-mobile.png
+/hero-section.png
+/hero-shot.mjs
+/hero-tablet.png
+/mobile-check.mjs
+/mobile-hero.png
+/seo-qa.mjs
+
+# Local VS Code settings
+/.vscode/
+
+# TypeScript incremental build artifacts
+*.tsbuildinfo

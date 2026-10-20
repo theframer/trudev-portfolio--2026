@@ -1,4 +1,10 @@
+"use client";
+
+import { useState } from "react";
+
 export default function About() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <section
       id="about"
@@ -6,65 +12,100 @@ export default function About() {
       aria-labelledby="about-title"
     >
       <div className="section-container">
-
         <div className="section-intro">
           <p className="section-eyebrow">01 · ABOUT</p>
 
-          <h3 id="about-title">
+          <h3 id="about-title" className="about-heading">
             NAMASKARAM.
           </h3>
         </div>
 
         <div className="about-content">
+          <div className="about-introduction">
+            <p className="about-lead">
+              I&apos;m{" "}
+              <span className="about-name">
+                Amal Dev Anilkumar
+              </span>
+              , a software developer who enjoys turning
+              real-world problems into working technology.
+            </p>
 
-          <p className="about-lead">
-            I&apos;m{" "}
-            <span className="about-name">
-              Amal Dev Anilkumar
-            </span>
-            , a software developer who enjoys turning
-            real-world problems into working technology.
-          </p>
+            <div
+              id="about-additional-content"
+              className={`about-text ${
+                isExpanded ? "is-expanded" : "is-collapsed"
+              }`}
+              aria-hidden={!isExpanded}
+            >
+              <p>
+                This is probably the part where I&apos;m supposed
+                to give you a standard intro, but I&apos;d rather
+                tell you how I actually approach technology, work,
+                and problem-solving.
+              </p>
 
-          <div className="about-text">
+              <p>
+                I&apos;m naturally curious. When something catches
+                my attention, a platform, workflow, or tiny
+                technical detail, I dive in until I truly
+                understand how it works.
+              </p>
 
-          <p>
-  This is probably the part where I&apos;m supposed to give you a standard intro,
-  but I&apos;d rather tell you how I actually approach technology, work, and problem-solving.
-</p>
+              <p>
+                Recently i heard about this on a neuroscience
+                podcast,{" "}
+                <i>
+                  &ldquo;There is no such thing called
+                  multi-tasking human.&rdquo;
+                </i>{" "}
+                <strong>One thing at a time.</strong> It makes
+                sense, So there i am focusing deeply on one
+                problem, solve it properly, and move to the next.
+              </p>
 
-<p>
-  I&apos;m naturally curious. When something catches my attention, a platform, workflow,
-  or tiny technical detail, I dive in until I truly understand how it works.
-</p>
+              <p>
+                That approach shapes everything I do:{" "}
+                <strong>
+                  understand, plan, build, test, and execute.
+                </strong>{" "}
+                Whether it&apos;s APIs, business automation, or
+                web applications, the goal remains the same.
+              </p>
 
-<p>
-  Recently i heard about this on a neuroscience podcast, <i>&ldquo;There is no such thing called multi-tasking human.&rdquo;</i>
-  <strong>One thing at a time.</strong> It makes sense, So there i am focusing deeply on one problem, solve it properly, and move to the next.
-</p>
+              <p>
+                And there&apos;s another thing I consider in both
+                life and profession: <strong>communication.</strong>{" "}
+                Even a brilliant technical solution fails if
+                people aren&apos;t on the same page. As Paul J.
+                Meyer put it,{" "}
+                <em>
+                  &quot;Communication is the key to personal and
+                  career success.&quot;
+                </em>
+              </p>
+            </div>
 
-<p>
-  That approach shapes everything I do: <strong>understand, plan, build, test, and execute.</strong>
-  Whether it&apos;s APIs, business automation, or web applications, the goal remains the same.
-</p>
-
-<p>
-  And there&apos;s another thing I consider in both life and profession: <strong>communication.</strong>
-  Even a brilliant technical solution fails if people aren&apos;t on the same page.
-  As Paul J. Meyer put it, <em>&quot;Communication is the key to personal and career success.&quot;</em>
-</p>
-
+            <button
+              type="button"
+              className="about-read-more"
+              aria-expanded={isExpanded}
+              aria-controls="about-additional-content"
+              onClick={() => setIsExpanded((previous) => !previous)}
+            >
+              {isExpanded ? "Read Less" : "Read More"}
+              <span aria-hidden="true">
+                {isExpanded ? " ↑" : " ↓"}
+              </span>
+            </button>
           </div>
         </div>
 
         <div className="about-facts">
-
           <div className="about-fact">
             <span className="about-fact-number">01</span>
-
             <div>
               <h3>LEARN</h3>
-
               <p>
                 Explore technologies, platforms, tools, and ideas
                 to understand what they can do and where they can
@@ -75,10 +116,8 @@ export default function About() {
 
           <div className="about-fact">
             <span className="about-fact-number">02</span>
-
             <div>
               <h3>UNDERSTAND</h3>
-
               <p>
                 Understand the business, its people, workflows,
                 data, and the real problem that technology needs
@@ -89,10 +128,8 @@ export default function About() {
 
           <div className="about-fact">
             <span className="about-fact-number">03</span>
-
             <div>
               <h3>PLAN</h3>
-
               <p>
                 Break complex requirements into practical
                 solutions, defining the architecture,
@@ -103,10 +140,8 @@ export default function About() {
 
           <div className="about-fact">
             <span className="about-fact-number">04</span>
-
             <div>
               <h3>BUILD</h3>
-
               <p>
                 Turn ideas and plans into applications, business
                 systems, integrations, automations, and digital
@@ -117,10 +152,8 @@ export default function About() {
 
           <div className="about-fact">
             <span className="about-fact-number">05</span>
-
             <div>
               <h3>TEST</h3>
-
               <p>
                 Test the solution against real requirements,
                 data, users, and edge cases to find what breaks
@@ -131,10 +164,8 @@ export default function About() {
 
           <div className="about-fact">
             <span className="about-fact-number">06</span>
-
             <div>
               <h3>EXECUTE</h3>
-
               <p>
                 Put the solution into practice, refine it through
                 real-world use, and keep improving it as the
@@ -142,7 +173,6 @@ export default function About() {
               </p>
             </div>
           </div>
-
         </div>
       </div>
     </section>

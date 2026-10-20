@@ -1,4 +1,125 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+function CountUp({ end }: { end: number }) {
+  const [count, setCount] = useState(0);
+  const numberRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const element = numberRef.current;
+
+    if (!element) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (reducedMotion) {
+      const frame = requestAnimationFrame(() => {
+        setCount(end);
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+
+    let animationFrame = 0;
+    let observer: IntersectionObserver | undefined;
+
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+
+        observer?.disconnect();
+
+        const duration = 1200;
+        let startTime: number | undefined;
+
+        const animate = (timestamp: number) => {
+          if (startTime === undefined) startTime = timestamp;
+
+          const progress = Math.min((timestamp - startTime) / duration, 1);
+
+          // Ease-out effect: fast at first, slower near the target.
+          const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+          setCount(Math.round(easedProgress * end));
+
+          if (progress < 1) {
+            animationFrame = requestAnimationFrame(animate);
+          }
+        };
+
+        animationFrame = requestAnimationFrame(animate);
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer?.disconnect();
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [end]);
+
+  return <span ref={numberRef}>{count}+</span>;
+}
+
 export default function Clients() {
+  const [showAllIndustries, setShowAllIndustries] = useState(false);
+
+  const industries = [
+    "Real Estate",
+    "Swimming & Aquatic Services",
+    "Aged Care",
+    "Healthcare",
+    "Clinical Research",
+    "Dermatology",
+    "Outsourcing",
+    "Professional Services",
+    "Building Materials",
+    "Plumbing",
+    "Automotive",
+    "Waste Management",
+    "Cleaning Services",
+    "Digital Marketing",
+    "Food & Beverage",
+    "Confectionery",
+    "Appliances",
+    "Refrigeration",
+    "Fashion & Apparel",
+    "Wine & Beverages",
+    "Organic Food",
+    "Payroll & HR",
+    "Workplace Compliance",
+    "Telecommunications",
+    "Communications APIs",
+    "Financial Services",
+    "Education",
+    "Biomedical Engineering",
+    "Medical Services",
+    "Steel & Industrial Materials",
+    "Accounting",
+    "Marketing",
+    "Forex & Financial Markets",
+    "Hair Restoration",
+    "Aesthetic Medicine",
+    "Facilities Services",
+    "Home Services",
+    "Spices & Food Products",
+    "Industrial Coatings",
+    "Safety Products",
+    "Laundry Equipment",
+    "Overseas Education",
+    "Photography & Videography",
+    "Cybersecurity",
+    "Risk Technology",
+  ];
+
+  const visibleIndustries = showAllIndustries
+    ? industries
+    : industries.slice(0, 12);
+
   return (
     <section id="clients" className="content-section clients-section">
       <div className="section-container">
@@ -14,7 +135,9 @@ export default function Clients() {
 
         <div className="clients-metrics">
           <div className="client-metric">
-            <p className="client-metric-number">48+</p>
+            <p className="client-metric-number">
+              <CountUp end={48} />
+            </p>
 
             <p className="client-metric-label">
               DOMESTIC
@@ -24,7 +147,9 @@ export default function Clients() {
           </div>
 
           <div className="client-metric">
-            <p className="client-metric-number">7+</p>
+            <p className="client-metric-number">
+              <CountUp end={7} />
+            </p>
 
             <p className="client-metric-label">
               INTERNATIONAL
@@ -34,7 +159,9 @@ export default function Clients() {
           </div>
 
           <div className="client-metric">
-            <p className="client-metric-number">30+</p>
+            <p className="client-metric-number">
+              <CountUp end={30} />
+            </p>
 
             <p className="client-metric-label">
               INDUSTRIES
@@ -50,52 +177,20 @@ export default function Clients() {
           </div>
 
           <div className="experience-tags">
-            <span>Real Estate</span>
-            <span>Swimming &amp; Aquatic Services</span>
-            <span>Aged Care</span>
-            <span>Healthcare</span>
-            <span>Clinical Research</span>
-            <span>Dermatology</span>
-            <span>Outsourcing</span>
-            <span>Professional Services</span>
-            <span>Building Materials</span>
-            <span>Plumbing</span>
-            <span>Automotive</span>
-            <span>Waste Management</span>
-            <span>Cleaning Services</span>
-            <span>Digital Marketing</span>
-            <span>Food &amp; Beverage</span>
-            <span>Confectionery</span>
-            <span>Appliances</span>
-            <span>Refrigeration</span>
-            <span>Fashion &amp; Apparel</span>
-            <span>Wine &amp; Beverages</span>
-            <span>Organic Food</span>
-            <span>Payroll &amp; HR</span>
-            <span>Workplace Compliance</span>
-            <span>Telecommunications</span>
-            <span>Communications APIs</span>
-            <span>Financial Services</span>
-            <span>Education</span>
-            <span>Biomedical Engineering</span>
-            <span>Medical Services</span>
-            <span>Steel &amp; Industrial Materials</span>
-            <span>Accounting</span>
-            <span>Marketing</span>
-            <span>Forex &amp; Financial Markets</span>
-            <span>Hair Restoration</span>
-            <span>Aesthetic Medicine</span>
-            <span>Facilities Services</span>
-            <span>Home Services</span>
-            <span>Spices &amp; Food Products</span>
-            <span>Industrial Coatings</span>
-            <span>Safety Products</span>
-            <span>Laundry Equipment</span>
-            <span>Overseas Education</span>
-            <span>Photography &amp; Videography</span>
-            <span>Cybersecurity</span>
-            <span>Risk Technology</span>
+            {visibleIndustries.map((industry) => (
+              <span key={industry}>{industry}</span>
+            ))}
           </div>
+
+          <button
+            type="button"
+            className="industries-toggle"
+            onClick={() => setShowAllIndustries((previous) => !previous)}
+            aria-expanded={showAllIndustries}
+          >
+            {showAllIndustries ? "Show Less" : "Show All Industries"}
+            <span aria-hidden="true">{showAllIndustries ? " ↑" : " ↓"}</span>
+          </button>
         </div>
       </div>
     </section>

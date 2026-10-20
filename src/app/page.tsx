@@ -5,8 +5,10 @@ import Image from "next/image";
 
 import ContactForm from "@/components/ContactForm";
 import CustomCursor from "@/components/CustomCursor";
+import RevealOnScroll from "@/components/RevealOnScroll";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import HeroImage from "@/components/ui/HeroImage";
 import About from "@/components/About";
 import Skills from "@/components/Skills";
 import Achievements from "@/components/Achievements";
@@ -94,6 +96,8 @@ export default function Home() {
   return (
     <>
       <CustomCursor />
+
+      <RevealOnScroll />
 
       <Navigation
         onContactClick={openContactForm}

@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import { AUTHOR_NAME, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://trudev.in"),
+  metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "TRUDEV | Free PDF Editor & Invoice Generator",
+    default: "TRUDEV | Amal Dev Anilkumar",
     template: "%s | TRUDEV",
   },
 
@@ -17,14 +18,14 @@ export const metadata: Metadata = {
 
   authors: [
     {
-      name: "Amal Dev Anilkumar",
-      url: "https://trudev.in",
+      name: AUTHOR_NAME,
+      url: SITE_URL,
     },
   ],
 
-  creator: "Amal Dev Anilkumar",
+  creator: AUTHOR_NAME,
 
-  publisher: "Amal Dev Anilkumar",
+  publisher: AUTHOR_NAME,
 
   alternates: {
     canonical: "/",
@@ -42,21 +43,32 @@ export const metadata: Metadata = {
     },
   },
 
+  manifest: "/manifest.webmanifest",
+
   openGraph: {
     type: "website",
-    url: "https://trudev.in",
+    url: SITE_URL,
     title: "Free PDF Editor & Invoice Generator | TRUDEV",
     description:
       "Edit supported PDF content or create a PDF invoice with free browser-based tools. Your files stay on your device.",
     siteName: "TRUDEV",
     locale: "en_IN",
+    images: [
+      {
+        url: "/opengraph-image?d8b23af9237d0bd8",
+        width: 1200,
+        height: 630,
+        alt: "TRUDEV — free browser-based PDF editor and invoice generator",
+      },
+    ],
   },
 
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Free PDF Editor & Invoice Generator | TRUDEV",
     description:
       "Free browser-based PDF editor and invoice generator. Your files stay on your device.",
+    images: ["/opengraph-image?d8b23af9237d0bd8"],
   },
 };
 
@@ -84,8 +96,8 @@ export default function RootLayout({
               {
                 "@context": "https://schema.org",
                 "@type": "Person",
-                name: "Amal Dev Anilkumar",
-                url: "https://trudev.in/",
+                name: AUTHOR_NAME,
+                url: `${SITE_URL}/`,
                 jobTitle: "Software Developer",
                 knowsAbout: [
                   "Software development",
@@ -98,15 +110,15 @@ export default function RootLayout({
               {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
-                name: "TRUDEV",
-                url: "https://trudev.in/",
+                name: SITE_NAME,
+                url: `${SITE_URL}/`,
                 description:
                   "Free browser-based PDF and invoice tools by software developer Amal Dev Anilkumar.",
                 inLanguage: "en-IN",
                 publisher: {
                   "@type": "Person",
-                  name: "Amal Dev Anilkumar",
-                  url: "https://trudev.in/",
+                  name: AUTHOR_NAME,
+                  url: `${SITE_URL}/`,
                 },
               },
             ]).replace(/</g, "\\u003c"),

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PdfEditor from "./PdfEditor";
+import { SITE_NAME, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Free PDF Editor Online",
@@ -8,16 +9,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tools/pdf-editor/" },
   openGraph: {
     type: "website",
-    url: "https://trudev.in/tools/pdf-editor/",
-    title: "Free PDF Editor Online | TRUDEV",
+    url: absoluteUrl("/tools/pdf-editor/"),
+    title: `Free PDF Editor Online | ${SITE_NAME}`,
     description:
       "Edit supported PDF text, move or erase detected objects, and add text in your browser. Files stay on your device.",
-    siteName: "TRUDEV",
+    siteName: SITE_NAME,
     locale: "en_IN",
   },
   twitter: {
     card: "summary",
-    title: "Free PDF Editor Online | TRUDEV",
+    title: `Free PDF Editor Online | ${SITE_NAME}`,
     description:
       "Edit supported PDF text, move or erase detected objects, and add text. Your file stays on your device.",
   },
@@ -30,7 +31,7 @@ export default function PdfEditorPage() {
     name: "TRUDEV Free PDF Editor",
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Any",
-    url: "https://trudev.in/tools/pdf-editor/",
+    url: absoluteUrl("/tools/pdf-editor/"),
     description:
       "A free, browser-based PDF editor for supported text and page objects. Files are processed on the user's device.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },

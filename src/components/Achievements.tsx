@@ -1,4 +1,42 @@
+
+"use client";
+
+import { useState } from "react";
+
+const achievements = [
+  {
+    number: "01",
+    type: "CERTIFICATION",
+    title: "Zoho CRM Certified Administrator",
+    description:
+      "Certified knowledge of Zoho CRM administration, configuration, automation, and system management.",
+    meta: "Certificate ID: bckk3BiC3um",
+  },
+  {
+    number: "02",
+    type: "RECOGNITION",
+    title: "Zoho Premium Partner Developer",
+    description:
+      "Professional recognition associated with development work within the Zoho ecosystem and the delivery of business solutions.",
+    meta: "One Hub Operations Pvt. Ltd.",
+  },
+  {
+    number: "03",
+    type: "CONTINUOUS LEARNING",
+    title: "Building Across Multiple Technologies",
+    description:
+      "Continuous hands-on development across business applications, web technologies, APIs, automation, data, and software engineering.",
+    meta: "",
+  },
+];
+
 export default function Achievements() {
+  const [showAll, setShowAll] = useState(false);
+
+  const visibleAchievements = showAll
+    ? achievements
+    : achievements.slice(0, 2);
+
   return (
     <section
       id="achievements"
@@ -6,11 +44,8 @@ export default function Achievements() {
       aria-labelledby="achievements-title"
     >
       <div className="section-container">
-
         <div className="section-intro">
-          <p className="section-eyebrow">
-            03 · ACHIEVEMENTS
-          </p>
+          <p className="section-eyebrow">03 · ACHIEVEMENTS</p>
 
           <h2 id="achievements-title">
             PROOF
@@ -20,83 +55,42 @@ export default function Achievements() {
         </div>
 
         <div className="achievements-list">
-
-          <article className="achievement-item">
-            <span className="achievement-number">
-              01
-            </span>
-
-            <div className="achievement-content">
-              <p className="achievement-type">
-                CERTIFICATION
-              </p>
-
-              <h3>
-                Zoho CRM Certified Administrator
-              </h3>
-
-              <p>
-                Certified knowledge of Zoho CRM
-                administration, configuration,
-                automation, and system management.
-              </p>
-
-              <span className="achievement-meta">
-                Certificate ID: bckk3BiC3um
+          {visibleAchievements.map((achievement) => (
+            <article
+              className="achievement-item"
+              key={achievement.number}
+            >
+              <span className="achievement-number">
+                {achievement.number}
               </span>
-            </div>
-          </article>
 
-          <article className="achievement-item">
-            <span className="achievement-number">
-              02
-            </span>
+              <div className="achievement-content">
+                <p className="achievement-type">
+                  {achievement.type}
+                </p>
 
-            <div className="achievement-content">
-              <p className="achievement-type">
-                RECOGNITION
-              </p>
+                <h3>{achievement.title}</h3>
 
-              <h3>
-                Zoho Premium Partner Developer
-              </h3>
+                <p>{achievement.description}</p>
 
-              <p>
-                Professional recognition associated with
-                development work within the Zoho ecosystem
-                and the delivery of business solutions.
-              </p>
-
-              <span className="achievement-meta">
-                One Hub Operations Pvt. Ltd.
-              </span>
-            </div>
-          </article>
-
-          <article className="achievement-item">
-            <span className="achievement-number">
-              03
-            </span>
-
-            <div className="achievement-content">
-              <p className="achievement-type">
-                CONTINUOUS LEARNING
-              </p>
-
-              <h3>
-                Building Across Multiple Technologies
-              </h3>
-
-              <p>
-                Continuous hands-on development across
-                business applications, web technologies,
-                APIs, automation, data, and software
-                engineering.
-              </p>
-            </div>
-          </article>
-
+                {achievement.meta && (
+                  <span className="achievement-meta">
+                    {achievement.meta}
+                  </span>
+                )}
+              </div>
+            </article>
+          ))}
         </div>
+
+        <button
+          type="button"
+          className="achievements-toggle"
+          onClick={() => setShowAll((current) => !current)}
+          aria-expanded={showAll}
+        >
+          {showAll ? "Show Less −" : "Show All Achievements +"}
+        </button>
       </div>
     </section>
   );

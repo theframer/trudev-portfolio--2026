@@ -1,5 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import styles from "./error-pages.module.css";
+
+export const metadata: Metadata = {
+  title: "Page Not Found (404)",
+  description: "That address doesn't lead to a page on TRUDEV. Head back to the portfolio or open one of the free tools.",
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

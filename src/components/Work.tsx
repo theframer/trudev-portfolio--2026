@@ -1,11 +1,93 @@
+
+"use client";
+
+import { useState } from "react";
+
+const projects = [
+  {
+    number: "01",
+    title: "Agent Time Buyers Agency Suite",
+    category: "BUSINESS SOFTWARE · PRODUCT DEVELOPMENT",
+    description:
+      "A large-scale business solution developed under the Zoho Vertical Studio environment, bringing together business workflows, applications, integrations, automation, and supporting systems.",
+    tags: [
+      "Zoho",
+      "CRM",
+      "Creator",
+      "APIs",
+      "Automation",
+      "Xero",
+      "Finance",
+      "Omni Channel",
+      "Marketing Automation",
+      "HTag",
+      "Widget",
+      "Database Management",
+      "Production / Sandbox",
+      "Version Control",
+    ],
+    href: "https://preview.agenttime.au/",
+    external: true,
+  },
+  {
+    number: "02",
+    title: "Customer Management System",
+    category: "WEB APPLICATION · ZOHO",
+    description:
+      "A React-based customer management application designed to give a sales team a more efficient way to manage customer information and workflow.",
+    tags: [
+      "React",
+      "JavaScript",
+      "Customer Management",
+      "Sales Workflow",
+    ],
+    href: "https://ohosolutions.com/",
+    external: true,
+  },
+  {
+    number: "03",
+    title: "You are looking at it.",
+    category: "WEBPAGE · TRUDEV.IN",
+    description:
+      "I love the journey, to be honest. Planning, designing, building, testing, executing, and enjoying what I built is another level of happiness.",
+    tags: [
+      "Front-End",
+      "NextJS",
+      "Learning Curve",
+      "ReactJS",
+      "TypeScript",
+      "JavaScript",
+      "Designing",
+      "Content Writing",
+      "AI",
+    ],
+    href: "",
+    external: false,
+  },
+];
+
 export default function Work() {
+  const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
+
+  const toggleProject = (number: string) => {
+    setExpandedProjects((previous) =>
+      previous.includes(number)
+        ? previous.filter((item) => item !== number)
+        : [...previous, number]
+    );
+  };
+
   return (
-    <section id="work" className="content-section work-section">
+    <section
+      id="work"
+      className="content-section work-section"
+      aria-labelledby="work-title"
+    >
       <div className="section-container">
         <div className="section-intro">
           <p className="section-eyebrow">06 · SELECTED WORK</p>
 
-          <h2>
+          <h2 id="work-title">
             WORK
             <br />
             WITH PROOF.
@@ -13,114 +95,71 @@ export default function Work() {
         </div>
 
         <div className="work-list">
-          <a
-            className="work-item"
-            href="https://preview.agenttime.au/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="work-index">01</div>
+          {projects.map((project) => {
+            const isExpanded = expandedProjects.includes(project.number);
+            const detailsId = `work-details-${project.number}`;
 
-            <div className="work-details">
-              <p className="work-category">
-                BUSINESS SOFTWARE · PRODUCT DEVELOPMENT
-              </p>
+            return (
+              <article className="work-item" key={project.number}>
+                <div className="work-index">{project.number}</div>
 
-              <h3>Agent Time Buyers Agency Suite</h3>
+                <div className="work-details">
+                  <h3>{project.title}</h3>
 
-              <p>
-                A large-scale business solution developed under the Zoho
-                Vertical Studio environment, bringing together business
-                workflows, applications, integrations, automation, and
-                supporting systems.
-              </p>
+                  {isExpanded && (
+                    <div id={detailsId} className="work-expanded-details">
+                      <p className="work-category">{project.category}</p>
 
-              <div className="work-tags">
-                <span>Zoho</span>
-                <span>CRM</span>
-                <span>Creator</span>
-                <span>APIs</span>
-                <span>Automation</span>
-                <span>Xero</span>
-                <span>Finance</span>
-                <span>Omni Channel</span>
-                <span>Marketing Automation</span>
-                <span>HTag</span>
-                <span>Widget</span>
-                <span>Database Management</span>
-                <span>Production / Sandbox</span>
-                <span>Version Control</span>
-              </div>
-            </div>
+                      <p>{project.description}</p>
 
-            <div className="work-arrow" aria-hidden="true">
-              ↗︎
-            </div>
-          </a>
+                      <div className="work-tags">
+                        {project.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
 
-          <a
-            className="work-item"
-            href="https://ohosolutions.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="work-index">02</div>
+                      {project.href && (
+                        <a
+                          className="work-project-link"
+                          href={project.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Visit Project ↗
+                        </a>
+                      )}
+                    </div>
+                  )}
 
-            <div className="work-details">
-              <p className="work-category">WEB APPLICATION · ZOHO</p>
+                  <button
+                    type="button"
+                    className="work-toggle"
+                    aria-expanded={isExpanded}
+                    aria-controls={detailsId}
+                    onClick={() => toggleProject(project.number)}
+                  >
+                    {isExpanded ? "Show Less −" : "Read More +"}
+                  </button>
+                </div>
 
-              <h3>Customer Management System</h3>
-
-              <p>
-                A React-based customer management application designed to give a
-                sales team a more efficient way to manage customer information
-                and workflow.
-              </p>
-
-              <div className="work-tags">
-                <span>React</span>
-                <span>JavaScript</span>
-                <span>Customer Management</span>
-                <span>Sales Workflow</span>
-              </div>
-            </div>
-
-            <div className="work-arrow" aria-hidden="true">
-              ↗︎
-            </div>
-          </a>
-
-          <article className="work-item">
-            <div className="work-index">03</div>
-
-            <div className="work-details">
-              <p className="work-category">WEBPAGE · TRUDEV.IN</p>
-
-              <h3>You are looking at it.</h3>
-
-              <p>
-                I love the journey tbh. The journey of planning, deisgning,
-                building, testing, executing and enjoying what i built is another
-                level happiness.
-              </p>
-
-              <div className="work-tags">
-                <span>Front-End</span>
-                <span>NextJS</span>
-                <span>Learning Curve</span>
-                <span>ReactJS</span>
-                <span>Typescript</span>
-                <span>Javascript</span>
-                <span>Designing</span>
-                <span>Content Writing</span>
-                <span>AI</span>
-              </div>
-            </div>
-
-            <div className="work-arrow" aria-hidden="true">
-              ↗︎
-            </div>
-          </article>
+                {project.href ? (
+                  <a
+                    className="work-arrow"
+                    href={project.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visit ${project.title} (opens in a new tab)`}
+                  >
+                    ↗
+                  </a>
+                ) : (
+                  <span className="work-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                )}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,3 +1,5 @@
+import HeroImage from "@/components/ui/HeroImage";
+
 export default function Hero() {
   return (
     <section
@@ -27,12 +29,7 @@ export default function Hero() {
         </a>
       </div>
 
-      <div
-        className="hero-mark"
-        aria-hidden="true"
-      >
-        <span>DEV</span>
-      </div>
+      <HeroImage />
     </section>
   );
 }

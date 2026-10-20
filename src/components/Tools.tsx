@@ -20,6 +20,13 @@ const tools: Tool[] = [
     url: "/tools/pdf-editor/",
     type: "POC \u00b7 FREE",
   },
+  {
+    name: "OG TAG GENERATOR",
+    description:
+      "Preview and copy Open Graph and Twitter card metadata for any page, ready to paste.",
+    url: "/og-generator/",
+    type: "LIVE \u00b7 FREE",
+  },
 ];
 
 export default function Tools() {

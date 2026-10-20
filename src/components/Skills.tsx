@@ -1,4 +1,83 @@
+
+"use client";
+
+import { useState } from "react";
+
+const skillGroups = [
+  {
+    number: "01",
+    title: "SOFTWARE DEVELOPMENT",
+    skills: [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Python",
+      "SQL",
+      "HTML & CSS",
+      "UI/UX",
+      "ER Modeling",
+    ],
+  },
+  {
+    number: "02",
+    title: "BUSINESS SYSTEMS",
+    skills: [
+      "Zoho CRM",
+      "Zoho Creator",
+      "Zoho Books",
+      "Zoho Analytics",
+      "Zoho Forms",
+      "Zoho Flow",
+      "Zoho Sheets",
+      "Zoho Catalyst",
+      "Zoho Vertical Studio",
+      "Zoho Bigin",
+      "Zoho Marketing Automation",
+    ],
+  },
+  {
+    number: "03",
+    title: "INTEGRATION & AUTOMATION",
+    skills: [
+      "REST APIs",
+      "Deluge",
+      "Webhooks",
+      "OAuth",
+      "Third-party integrations",
+      "Workflow automation",
+      "Data synchronization",
+      "Business process automation",
+    ],
+  },
+  {
+    number: "04",
+    title: "PRODUCT & BUSINESS",
+    skills: [
+      "Requirements analysis",
+      "Business process design",
+      "CRM implementation",
+      "Reporting & analytics",
+      "Sales workflows",
+      "Marketing workflows",
+      "Client communication",
+      "Training & mentoring",
+    ],
+  },
+];
+
 export default function Skills() {
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  const toggleGroup = (number: string) => {
+    setExpandedGroups((previous) =>
+      previous.includes(number)
+        ? previous.filter((item) => item !== number)
+        : [...previous, number]
+    );
+  };
+
   return (
     <section
       id="skills"
@@ -6,11 +85,8 @@ export default function Skills() {
       aria-labelledby="skills-title"
     >
       <div className="section-container">
-
         <div className="section-intro">
-          <p className="section-eyebrow">
-            02 · CAPABILITIES
-          </p>
+          <p className="section-eyebrow">02 · CAPABILITIES</p>
 
           <h2 id="skills-title">
             WHAT I
@@ -20,80 +96,38 @@ export default function Skills() {
         </div>
 
         <div className="skills-grid">
+          {skillGroups.map((group) => {
+            const isExpanded = expandedGroups.includes(group.number);
+            const visibleSkills = isExpanded
+              ? group.skills
+              : group.skills.slice(0, 5);
 
-          <article className="skill-group">
-            <span className="skill-number">01</span>
+            return (
+              <article className="skill-group" key={group.number}>
+                <span className="skill-number">{group.number}</span>
 
-            <h3>SOFTWARE DEVELOPMENT</h3>
+                <h3>{group.title}</h3>
 
-            <ul>
-              <li>JavaScript</li>
-              <li>TypeScript</li>
-              <li>React</li>
-              <li>Next.js</li>
-              <li>Node.js</li>
-              <li>Python</li>
-              <li>SQL</li>
-              <li>HTML &amp; CSS</li>
-              <li>UI/UX</li>
-              <li>ER Modeling</li>
-            </ul>
-          </article>
+                <ul>
+                  {visibleSkills.map((skill) => (
+                    <li key={skill}>{skill}</li>
+                  ))}
+                </ul>
 
-          <article className="skill-group">
-            <span className="skill-number">02</span>
-
-            <h3>BUSINESS SYSTEMS</h3>
-
-            <ul>
-              <li>Zoho CRM</li>
-              <li>Zoho Creator</li>
-              <li>Zoho Books</li>
-              <li>Zoho Analytics</li>
-              <li>Zoho Forms</li>
-              <li>Zoho Flow</li>
-              <li>Zoho Sheets</li>
-              <li>Zoho Catalyst</li>
-              <li>Zoho Vertical Studio</li>
-              <li>Zoho Bigin</li>
-              <li>Zoho Marketing Automation</li>
-            </ul>
-          </article>
-
-          <article className="skill-group">
-            <span className="skill-number">03</span>
-
-            <h3>INTEGRATION &amp; AUTOMATION</h3>
-
-            <ul>
-              <li>REST APIs</li>
-              <li>Deluge</li>
-              <li>Webhooks</li>
-              <li>OAuth</li>
-              <li>Third-party integrations</li>
-              <li>Workflow automation</li>
-              <li>Data synchronization</li>
-              <li>Business process automation</li>
-            </ul>
-          </article>
-
-          <article className="skill-group">
-            <span className="skill-number">04</span>
-
-            <h3>PRODUCT &amp; BUSINESS</h3>
-
-            <ul>
-              <li>Requirements analysis</li>
-              <li>Business process design</li>
-              <li>CRM implementation</li>
-              <li>Reporting &amp; analytics</li>
-              <li>Sales workflows</li>
-              <li>Marketing workflows</li>
-              <li>Client communication</li>
-              <li>Training &amp; mentoring</li>
-            </ul>
-          </article>
-
+                <button
+                  type="button"
+                  className="skills-toggle"
+                  aria-expanded={isExpanded}
+                  onClick={() => toggleGroup(group.number)}
+                >
+                  {isExpanded ? "Show Less" : "Show All Skills"}
+                  <span aria-hidden="true">
+                    {isExpanded ? " ↑" : " ↓"}
+                  </span>
+                </button>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
