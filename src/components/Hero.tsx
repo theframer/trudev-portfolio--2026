@@ -23,10 +23,10 @@ export default function Hero() {
           digital products built around real problems.
         </p>
 
-        <a className="hero-link" href="#tools">
-          Explore my tools
-          <span aria-hidden="true">↗︎</span>
-        </a>
+        <a className="hero-link" href="#work">
+  Explore my work
+  <span aria-hidden="true">↗︎</span>
+</a>
       </div>
 
       <HeroImage />

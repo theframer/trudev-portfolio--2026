@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "TRUDEV | Amal Dev Anilkumar",
+    default: "Amal Dev Anilkumar | Software Developer",
     template: "%s | TRUDEV",
   },
 
   description:
-    "Use TRUDEV’s free online PDF editor and invoice generator. Edit supported PDF content or create and download an invoice, with your files staying on your device.",
+    "Amal Dev Anilkumar is a software developer building web applications, APIs, integrations, business systems, and digital products. Explore projects, technical work, and engineering experiments at TRUDEV.",
 
   applicationName: "TRUDEV",
 
@@ -96,29 +96,36 @@ export default function RootLayout({
               {
                 "@context": "https://schema.org",
                 "@type": "Person",
+                "@id": `${SITE_URL}/#person`,
                 name: AUTHOR_NAME,
                 url: `${SITE_URL}/`,
                 jobTitle: "Software Developer",
                 knowsAbout: [
-                  "Software development",
-                  "Web applications",
-                  "Business systems",
-                  "PDF editing tools",
-                  "Invoice generation tools",
+                  "Software Development",
+                  "Web Application Development",
+                  "API Integration",
+                  "CRM Development",
+                  "Workflow Automation",
+                  "Zoho CRM",
+                  "JavaScript",
+                  "TypeScript",
+                  "React",
+                  "Next.js",
+                  "Node.js",
                 ],
               },
               {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
+                "@id": `${SITE_URL}/#website`,
                 name: SITE_NAME,
                 url: `${SITE_URL}/`,
                 description:
-                  "Free browser-based PDF and invoice tools by software developer Amal Dev Anilkumar.",
+                  "Portfolio of Amal Dev Anilkumar featuring software projects, web applications, API integrations, business systems, and developer tools.",
                 inLanguage: "en-IN",
                 publisher: {
                   "@type": "Person",
-                  name: AUTHOR_NAME,
-                  url: `${SITE_URL}/`,
+                  "@id": `${SITE_URL}/#person`,
                 },
               },
             ]).replace(/</g, "\\u003c"),
