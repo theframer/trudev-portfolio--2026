@@ -1,4 +1,6 @@
 
+import Link from "next/link";
+
 const footerLinks = [
   { label: "About", href: "#about" },
   { label: "Skills", href: "#skills" },
@@ -8,6 +10,13 @@ const footerLinks = [
   { label: "Tools", href: "#tools" },
   { label: "Blog", href: "#blog" },
   { label: "Contact", href: "#contact" },
+];
+
+const legalLinks = [
+  { label: "Privacy Policy", href: "/privacy-policy/" },
+  { label: "Terms of Service", href: "/terms-of-service/" },
+  { label: "Data Deletion", href: "/data-deletion/" },
+  { label: "Contact", href: "/contact/" },
 ];
 
 export default function Footer() {
@@ -37,6 +46,14 @@ export default function Footer() {
             >
               {link.label}
             </a>
+          ))}
+        </nav>
+
+        <nav className="footer-legal-navigation" aria-label="Legal">
+          {legalLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              {link.label}
+            </Link>
           ))}
         </nav>
 
